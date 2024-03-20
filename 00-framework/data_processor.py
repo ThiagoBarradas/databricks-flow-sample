@@ -1,9 +1,11 @@
-# DataProcessor.py
+# data_processor.py
 
-class DataReader:
-    def __init__(self):
+from framework_base import FrameworkBase
+
+class DataProcessor(FrameworkBase):
+    def __init__(self, type):
         """Constructor Method"""
-        self.type = "DataReader"
+        super().__init__(type)
 
     def read(self):
         """Read abstract method"""
@@ -24,7 +26,3 @@ class DataReader:
         """Verify abstract method"""
         print("verify: Method not implemented")
         raise NotImplementedError("verify: Subclasses should implment this!")
-
-    def getType(self):
-        """Print type"""
-        print(self.type)

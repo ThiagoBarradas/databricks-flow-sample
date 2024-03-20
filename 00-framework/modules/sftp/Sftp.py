@@ -1,4 +1,4 @@
-# sftp_client.py
+# sftp.py
 
 import pysftp, paramiko, io
 from urllib.parse import urlparse

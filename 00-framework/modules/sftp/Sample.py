@@ -1,5 +1,5 @@
-# program.py
-from Sftp import Sftp
+# sample.py
+from sftp import Sftp
 
 # vars 
 local_path = "temp/"

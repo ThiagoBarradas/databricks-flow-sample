@@ -1,9 +1,9 @@
-# program.py
-from DataFramework import DataFramework
+# sample.py
+from data_framework import DataFramework
 
-framework = DataFramework()
+framework = DataFramework(None)
 
-framework.getType()
-framework.dataQuality.getType()
-framework.dataReader.getType()
-framework.dataWriter.getType()
+framework.get_type()
+framework.dataQuality.get_type()
+framework.dataReader.get_type()
+framework.dataWriter.get_type()
