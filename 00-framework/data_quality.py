@@ -1,8 +1,6 @@
 # data_quality.py
 
-from framework_base import FrameworkBase
-
-class DataQuality(FrameworkBase):
-    def __init__(self):
+class DataQuality:
+    def __init__(self, configuration):
         """Constructor Method"""
-        super().__init__("data_quality")
+        self.configuration = configuration

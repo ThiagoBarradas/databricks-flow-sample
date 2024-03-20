@@ -1,11 +1,11 @@
 # data_processor.py
 
-from framework_base import FrameworkBase
+from data_framework import DataFramework
 
-class DataProcessor(FrameworkBase):
-    def __init__(self, type):
+class DataProcessor(DataFramework):
+    def __init__(self, dbutils):
         """Constructor Method"""
-        super().__init__(type)
+        super().__init__(dbutils)
 
     def read(self):
         """Read abstract method"""

@@ -18,7 +18,7 @@ processed_files = [
 ]
 
 # Connect SFTP and show files
-sftp = Sftp(sftp_host, sftp_user, sftp_private_key_content, sftp_port)
+sftp = Sftp(sftp_host, sftp_port, sftp_user, sftp_private_key_content)
 
 try:
     sftp.connect()
@@ -28,7 +28,7 @@ try:
 
     # List and download unprocessed files
     for file in files:
-        sftp.download(sftp_default_directory, file, local_path)   
+        sftp.download(sftp_default_directory, local_path, file)   
             
 except Exception as err:
     raise Exception(err)

@@ -2,34 +2,16 @@
 
 import os
 from dotenv import load_dotenv
-from framework_base import FrameworkBase
 from data_quality import DataQuality
 from data_reader import DataReader
 from data_writer import DataWriter
+from configuration import Configuration
 
-class DataFramework(FrameworkBase):
+class DataFramework:
     def __init__(self, dbutils):
         """Constructor Method"""
-        super().__init__("data_framework")
-        self.load_env(".env")
-        self.dbutils = dbutils
-        self.key_vault_name = self.get_secret("KEY_VAULT_NAME")
-        print("ENVIRONMENT: " + self.get_env_var("ENVIRONMENT"))
-        print("KEY_VAULT_NAME: " + self.get_secret("KEY_VAULT_NAME"))
-        self.data_quality = DataQuality()
-        self.data_reader = DataReader()
-        self.data_writer = DataWriter()
-        print("Environment: " + self.get_env_var("ENVIRONMENT"))
-
-    def get_secret(self, key):
-        if (self.dbutils is not None):
-            return self.dbutils.secrets.get(scope=self.key_vault_name, key=key)
-        else:
-            return self.get_env_var(key)
-    
-    def get_env_var(self, key):
-        return os.getenv(key)
-    
-    def load_env(self, file):
-        """Load env vars"""
-        load_dotenv(file)
+        self.configuration = Configuration(dbutils);
+        self.data_quality = DataQuality(self.configuration)
+        self.data_reader = DataReader(self.configuration)
+        self.data_writer = DataWriter(self.configuration)
+        

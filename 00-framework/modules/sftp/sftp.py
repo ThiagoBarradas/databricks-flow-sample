@@ -5,7 +5,7 @@ from urllib.parse import urlparse
 import os
 
 class Sftp:
-    def __init__(self, hostname, username, private_key, port=22):
+    def __init__(self, hostname, port, username, private_key):
         """Constructor Method"""
         # Set connection object to None (initial value)
         self.connection = None
@@ -20,22 +20,20 @@ class Sftp:
         """Connects to the sftp server and returns the sftp connection object"""
 
         try:
-            private_key_file_object = io.StringIO(self.private_key)
+            private_key_file_object = io.StringIO(self.private_key.replace("\\n","\n"))
             private_key = paramiko.RSAKey.from_private_key(private_key_file_object)
             # Get the sftp connection object
             self.connection = pysftp.Connection(
                 host=self.hostname, 
                 username=self.username, 
                 private_key=private_key, 
-                port=self.port, 
+                port=self.port,
                 cnopts=self.cnopts
             )
-            
             print(f"Connected to {self.hostname} as {self.username}.")
         except Exception as err:
             print(f"Error to connect to {self.hostname} as {self.username}.")
             raise Exception(err)
-
 
     def disconnect(self):
         """Closes the sftp connection"""
@@ -48,6 +46,10 @@ class Sftp:
             if obj not in excluding:
                 yield obj
                 
-    def download(self, remote_path, file, local_path):
+    def download(self, remote_path, local_path, file):
         """download file"""
+        if not os.path.exists(local_path):
+            os.makedirs(local_path)
+        if os.path.isfile(file):
+            os.remove(file)
         self.connection.get(remote_path + file, local_path + file)       
