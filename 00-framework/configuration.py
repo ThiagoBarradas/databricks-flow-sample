@@ -7,10 +7,6 @@ class Configuration:
     def __init__(self, dbutils):
         """Constructor Method"""
         self.utils = dbutils
-        self.env_file = ".env"
-        if (self.utils is not None):
-            self.env_file = ".env.dev"
-        
         self.load_env()
        
         self.environment = self.get_env_var("ENVIRONMENT")
@@ -26,6 +22,7 @@ class Configuration:
         print("ENVIRONMENT: " + self.environment)
 
     def get_secret(self, key):
+        """Get secret from vault if configured or from os env var"""
         try:
             if (self.utils is not None):
                 return self.utils.secrets.get(scope=self.vault, key=key)
@@ -35,11 +32,22 @@ class Configuration:
             return ""
     
     def get_env_var(self, key):
+        """Get env var from os"""
         try:
             return os.getenv(key)
         except:
             return ""
-    
+        
+    def get_env_file_path(self):
+        """Get env file path"""
+        path = os.path.dirname(os.path.realpath(__file__))
+        env_file = ".env"
+        if (self.utils is not None):
+            env_file = ".env.dev"
+        return path + "/" + env_file
+
     def load_env(self):
         """Load env vars"""
-        load_dotenv(self.env_file)
+        file_path = self.get_env_file_path()
+        load_dotenv(file_path)
+        print("Env File: " + file_path)
