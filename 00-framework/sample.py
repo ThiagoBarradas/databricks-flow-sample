@@ -1,7 +1,10 @@
-%pip install -r requirements.txt
+# %pip install -r requirements.txt
 
 # sample.py
 from data_framework import DataFramework
+
+if 'dbutils' not in locals():
+    dbutils = None
 
 framework = DataFramework(dbutils)
 
