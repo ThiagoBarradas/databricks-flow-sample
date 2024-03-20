@@ -1,4 +1,3 @@
-#%pip install -r requirements.txt
 # data_framework.py
 
 import os
@@ -12,19 +11,25 @@ class DataFramework(FrameworkBase):
     def __init__(self, dbutils):
         """Constructor Method"""
         super().__init__("data_framework")
-        load_dotenv()
+        self.load_env(".env")
         self.dbutils = dbutils
-        self.keyVaultName = self.get_secret("KeyVaultName")
-        self.dataQuality = DataQuality()
-        self.dataReader = DataReader()
-        self.dataWriter = DataWriter()
-        print("Environment: " + self.get_env_var("Environment"))
+        self.key_vault_name = self.get_secret("KEY_VAULT_NAME")
+        print("ENVIRONMENT: " + self.get_env_var("ENVIRONMENT"))
+        print("KEY_VAULT_NAME: " + self.get_secret("KEY_VAULT_NAME"))
+        self.data_quality = DataQuality()
+        self.data_reader = DataReader()
+        self.data_writer = DataWriter()
+        print("Environment: " + self.get_env_var("ENVIRONMENT"))
 
     def get_secret(self, key):
         if (self.dbutils is not None):
-            return self.dbutils.secrets.get(scope=self.keyVaultName, key=key)
+            return self.dbutils.secrets.get(scope=self.key_vault_name, key=key)
         else:
             return self.get_env_var(key)
     
     def get_env_var(self, key):
         return os.getenv(key)
+    
+    def load_env(self, file):
+        """Load env vars"""
+        load_dotenv(file)
