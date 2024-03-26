@@ -12,7 +12,7 @@ fw = DataFramework(dbutils, spark)
 
 # DBTITLE 1,Parse Files to Bronze
 # Set Vars
-local_path = fw.configuration.local_path + "serasa/"
+local_path = "receita_federal/"
 columns = [ 
     [ "Index", "index" ],
     [ "Customer Id", "customer_id"], 
@@ -34,7 +34,7 @@ fw.data_access.dbfs.print(files)
 for file in files:
     df = fw.data_access.dbfs.read_csv_from_dbfs(local_path + file, ",")
     df = fw.data_access.spark.rename_columns(df, columns)
-    fw.data_access.spark.write_to_spark_table(df, "bronze.receital_federal_customers")
+    fw.data_access.spark.write_to_spark_table(df, "bronze.receital_federal_customers", "overwrite")
 
 
 

@@ -13,6 +13,7 @@ class Configuration:
         self.vault = self.get_env_var("KEY_VAULT_NAME")
 
         self.local_path = self.get_env_var("LOCAL_PATH")
+        self.local_path_protocol = self.get_env_var("LOCAL_PATH_PROTOCOL")
         self.catalog = self.get_env_var("CATALOG")
         self.sftp_default_directory = self.get_env_var("SFTP_DEFAULT_DIRECTORY")
         self.sftp_host = self.get_env_var("SFTP_HOST")

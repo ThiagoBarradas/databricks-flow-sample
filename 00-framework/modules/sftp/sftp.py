@@ -5,8 +5,9 @@ from urllib.parse import urlparse
 import os
 
 class Sftp:
-    def __init__(self):
+    def __init__(self, configuration):
         """Constructor Method"""
+        self.configuration = configuration
     
     def set_connection(self, hostname, port, username, private_key):
         """Set connection parameters"""
@@ -56,13 +57,14 @@ class Sftp:
                 
     def download(self, local_path, remote_path, file):
         """Download file"""
+        fullpath = self.configuration.local_path + local_path
         try:
-            if not os.path.exists(local_path):
-                os.makedirs(local_path)
+            if not os.path.exists(fullpath):
+                os.makedirs(fullpath)
             if os.path.isfile(file):
                 os.remove(file)
             self.connect()
-            self.connection.get(remote_path + file, local_path + file)  
+            self.connection.get(remote_path + file, fullpath + file)  
         except Exception as err:
             raise Exception(err)
         finally:

@@ -12,7 +12,7 @@ fw = DataFramework(dbutils, spark)
 
 # DBTITLE 1,Download Files
 # Set Vars
-local_path = fw.configuration.local_path + "serasa/"
+local_path = "receita_federal/"
 remote_path = fw.configuration.sftp_default_directory
 files_prefix = "customers"
 files_already_processed = [

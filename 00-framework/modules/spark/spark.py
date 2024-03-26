@@ -16,10 +16,14 @@ class Spark:
         return dataframe
     
     def write_to_spark_table(self, dataframe, table, mode = "overwrite"):
-        """Write a dataframe into databricks spark table"""
+        """
+        Write a dataframe into databricks spark table. 
+        mode "overwirte" or "append"
+        """
         (dataframe.write
             .format("delta")
             .option("overwriteSchema", "true")
+            .option("mergeSchema", "true")
             .mode(mode)
             .saveAsTable(name=table))
         print("write_to_spark_table > " + table + " > finish!")      

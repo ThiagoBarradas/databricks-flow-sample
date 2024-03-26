@@ -8,6 +8,6 @@ class DataAccess:
     def __init__(self, dbutils, spark, configuration):
         """Constructor Method"""
         self.configuration = configuration
-        self.dbfs = Dbfs(dbutils, spark)
+        self.dbfs = Dbfs(dbutils, spark, configuration)
         self.spark = Spark(spark, configuration)
-        self.sftp = Sftp()
+        self.sftp = Sftp(configuration)
