@@ -1,27 +1,23 @@
-#configuration.py
+# configuration.py
 
-import os
+import pathlib, glob, os
 from dotenv import load_dotenv
 
 class Configuration:
     def __init__(self, dbutils):
         """Constructor Method"""
         self.utils = dbutils
+        
+        self.set_app_dir()
         self.load_env()
        
-        self.environment = self.get_env_var("ENVIRONMENT")
-        self.vault = self.get_env_var("KEY_VAULT_NAME")
+        self.environment = self.get_env_var("DATABRICKS_ENVIRONMENT")
+        self.vault = self.get_env_var("DATABRICKS_KEY_VAULT_NAME")
+        self.local_path = self.get_env_var("DATABRICKS_LOCAL_PATH")
+        self.local_path_protocol = self.get_env_var("DATABRICKS_LOCAL_PATH_PROTOCOL")
+        self.catalog = self.get_env_var("DATABRICKS_CATALOG")
 
-        self.local_path = self.get_env_var("LOCAL_PATH")
-        self.local_path_protocol = self.get_env_var("LOCAL_PATH_PROTOCOL")
-        self.catalog = self.get_env_var("CATALOG")
-        self.sftp_default_directory = self.get_env_var("SFTP_DEFAULT_DIRECTORY")
-        self.sftp_host = self.get_env_var("SFTP_HOST")
-        self.sftp_port = int(self.get_env_var("SFTP_PORT"))
-        self.sftp_user = self.get_env_var("SFTP_USER")
-        self.sftp_private_key = self.get_secret("databricks-sftp-private-key")
-
-        print("ENVIRONMENT: " + self.environment)
+        print("Environment: " + self.environment)
 
     def get_secret(self, key):
         """Get secret from vault if configured or from os env var"""
@@ -39,17 +35,21 @@ class Configuration:
             return os.getenv(key)
         except:
             return ""
-        
-    def get_env_file_path(self):
+
+    def set_app_dir(self):
+        """Set application base dir"""
+        self.app_dir = str(os.path.abspath(__file__)).replace("00-framework/configuration.py", "");
+        print("App Dir: " + self.app_dir)
+
+    def get_env_files(self):
         """Get env file path"""
-        path = os.path.dirname(os.path.realpath(__file__))
-        env_file = ".env"
-        if (self.utils is not None):
-            env_file = ".env.dev"
-        return path + "/" + env_file
+        for file in pathlib.Path(self.app_dir).rglob('*.env'):
+            yield str(file)
 
     def load_env(self):
         """Load env vars"""
-        file_path = self.get_env_file_path()
-        load_dotenv(file_path)
-        print("Env File: " + file_path)
+        files = self.get_env_files()
+
+        for file in files:
+            load_dotenv(file)
+            print("Env File: " + file)

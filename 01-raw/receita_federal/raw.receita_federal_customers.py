@@ -1,19 +1,18 @@
 # Databricks notebook source
 # DBTITLE 1,Setup
-# Install Dependencies and Setup Framework
-%pip install -r ../../00-framework/requirements.txt --quiet
-
-import sys
-sys.path.append('../../00-framework')
-from data_framework import DataFramework
-fw = DataFramework(dbutils, spark)
+# MAGIC %run ../../00-framework/setup_framework
 
 # COMMAND ----------
 
 # DBTITLE 1,Download Files
 # Set Vars
+sftp_path = fw.configuration.get_env_var("DATABRICKS_RAW_RECEITA_FEDERAL_SFTP_DEFAULT_DIRECTORY")
+sftp_host = fw.configuration.get_env_var("DATABRICKS_RAW_RECEITA_FEDERAL_SFTP_HOST")
+sftp_port = int(fw.configuration.get_env_var("DATABRICKS_RAW_RECEITA_FEDERAL_SFTP_PORT"))
+sftp_user = fw.configuration.get_env_var("DATABRICKS_RAW_RECEITA_FEDERAL_SFTP_USER")
+sftp_private_key_secret_name = fw.configuration.get_env_var("DATABRICKS_RAW_RECEITA_FEDERAL_SFTP_PRIVATE_KEY_SECRET_NAME")
+sftp_private_key = fw.configuration.get_secret(sftp_private_key_secret_name)
 local_path = "receita_federal/"
-remote_path = fw.configuration.sftp_default_directory
 files_prefix = "customers"
 files_already_processed = [
 
@@ -21,11 +20,11 @@ files_already_processed = [
 
 # Download Files
 fw.data_access.sftp.set_connection(
-    fw.configuration.sftp_host, 
-    fw.configuration.sftp_port,
-    fw.configuration.sftp_user, 
-    fw.configuration.sftp_private_key)
-downloaded_files = fw.data_access.sftp.download_many(local_path, remote_path, files_prefix, files_already_processed)
+    sftp_host, 
+    sftp_port,
+    sftp_user, 
+    sftp_private_key)
+downloaded_files = fw.data_access.sftp.download_many(local_path, sftp_path, files_prefix, files_already_processed)
 
 # Print Results
 fw.data_access.dbfs.print(downloaded_files)

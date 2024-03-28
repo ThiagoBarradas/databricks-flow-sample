@@ -1,0 +1,156 @@
+vars:
+  JobReceitaFederal_JobName=full_receita_federal
+  JobReceitaFederal_JobDescription=Job to execute receita_federal integration and ingestion
+  JobReceitaFederal_JobWarningInSeconds=1800
+  JobReceitaFederal_JobTimeoutInSeconds=3600
+  JobReceitaFederal_JobScheduleCron=25 0 * * * ?
+  JobReceitaFederal_JobScheduleTimezone=America/Sao_Paulo
+  JobReceitaFederal_JobScheduleStatus=UNPAUSED
+  JobReceitaFederal_Task1Name=bronze_receita_federal
+  JobReceitaFederal_Task1Path=02-bronze/receita_federal/silver.receita_federal_customers
+  JobReceitaFederal_Task1WarningInSeconds=900
+  JobReceitaFederal_Task1TimeoutInSeconds=1800
+  JobReceitaFederal_Task1RetryInTimeout=true
+  JobReceitaFederal_Task1Retries=1
+  JobReceitaFederal_Task1RetryIntervalInMilliseconds=900000
+  JobReceitaFederal_Task2Name=raw_receita_federal
+  JobReceitaFederal_Task2Path=01-raw/receita_federal/raw.receita_federal_customers
+  JobReceitaFederal_Task2WarningInSeconds=900
+  JobReceitaFederal_Task2TimeoutInSeconds=1800
+  JobReceitaFederal_Task2RetryInTimeout=true
+  JobReceitaFederal_Task2Retries=1
+  JobReceitaFederal_Task2RetryIntervalInMilliseconds=900000
+  JobReceitaFederal_Task2DependsOn=bronze_receita_federal
+  JobReceitaFederal_JobClusterName=full_receita_federal
+  JobReceitaFederal_JobClusterAutoscaleMinWorker=1
+  JobReceitaFederal_JobClusterAutoscaleMaxWorker=4
+  JobReceitaFederal_JobClusterNodeType=Standard_DS3_v2
+  JobReceitaFederal_JobClusterDriverType=Standard_DS3_v2
+  JobReceitaFederal_JobClusterSparkVersion=13.3.x-scala2.12
+  JobReceitaFederal_JobClusterEnableElasticDisk=true
+  JobReceitaFederal_JobClusterDataSecurityMode=SINGLE_USER
+  JobReceitaFederal_JobClusterRuntimeEngine=PHOTON
+  JobReceitaFederal_JobClusterSpotFirstOnDemand=1
+  JobReceitaFederal_JobClusterSpotAvailability=SPOT_WITH_FALLBACK_AZURE
+  JobReceitaFederal_JobClusterSpotBidMaxPrice=-1
+  Global_GithubBranch=feature/receita_federal
+  Global_GithubUrl=https://github.com/ThiagoBarradas/databricks-flow-sample
+  Global_EnvironmentLower=development
+  Global_SlackWebhook=949dda84-d9ab-4554-9f54-a3113081fcbc
+
+  Global_KeyVaultName=databricks-dev-vault
+  Global_Catalog=data_development
+  Global_LocalPath=LOCAL_PATH=/dbfs/raw/
+  Global_LocalPathProtocol=dbfs:/raw/
+  JobReceitaFederal_SftpDefaultDirectory=/
+  JobReceitaFederal_SftpHost=storagebarradas.blob.core.windows.net
+  JobReceitaFederal_SftpPort=22
+  JobReceitaFederal_SftpUser=storagebarradas.sftp
+
+
+resources:
+  jobs:
+    #{Global_EnvironmentLower}#_#{JobReceitaFederal_JobName}#_job:
+      name: #{Global_EnvironmentLower}#_#{JobReceitaFederal_JobName}#_job
+      description: 
+      webhook_notifications:
+        on_start:
+          - id: #{Global_SlackWebhook}#
+        on_success:
+          - id: #{Global_SlackWebhook}#
+        on_failure:
+          - id: #{Global_SlackWebhook}#
+        on_duration_warning_threshold_exceeded:
+          - id: #{Global_SlackWebhook}#
+      timeout_seconds: #{JobReceitaFederal_JobTimeoutInSeconds}#
+      health:
+        rules:
+          - metric: RUN_DURATION_SECONDS
+            op: GREATER_THAN
+            value: #{JobReceitaFederal_JobWarningInSeconds}#
+      schedule:
+        quartz_cron_expression: #{JobReceitaFederal_JobScheduleCron}#
+        timezone_id: #{JobReceitaFederal_JobScheduleTimezone}#
+        pause_status: #{JobReceitaFederal_JobScheduleStatus}#
+      tasks:
+        - task_key: #{Global_EnvironmentLower}#_#{JobReceitaFederal_Task1Name}#_task
+          notebook_task:
+            notebook_path: #{JobReceitaFederal_Task1Path}#
+            base_parameters:
+              environment_task: #{Global_EnvironmentLower}#
+            source: GIT
+          job_cluster_key: #{JobReceitaFederal_JobClusterName}#_cluster
+          max_retries: #{JobReceitaFederal_Task1Retry}#
+          min_retry_interval_millis: #{JobReceitaFederal_Task1RetryIntervalInMilliseconds}#
+          retry_on_timeout: #{JobReceitaFederal_Task1RetryInTimeout}#
+          timeout_seconds: #{JobReceitaFederal_Task1TimeoutInSeconds}#
+          health:
+            rules:
+              - metric: RUN_DURATION_SECONDS
+                op: GREATER_THAN
+                value: #{JobReceitaFederal_Task1WarningInSeconds}#
+          webhook_notifications:
+            on_start:
+              - id: #{Global_SlackWebhook}#
+            on_success:
+              - id: #{Global_SlackWebhook}#
+            on_failure:
+              - id: #{Global_SlackWebhook}#
+            on_duration_warning_threshold_exceeded:
+              - id: #{Global_SlackWebhook}#
+        - task_key: #{Global_EnvironmentLower}#_#{JobReceitaFederal_Task2Name}#_task
+          depends_on:
+            - task_key: #{Global_EnvironmentLower}#_#{JobReceitaFederal_Task2DependsOn}#_task
+          notebook_task:
+            notebook_path: #{JobReceitaFederal_Task2Path}#
+            base_parameters:
+              environment_task: #{Global_EnvironmentLower}#
+            source: GIT
+          job_cluster_key: #{JobReceitaFederal_JobClusterName}#_cluster
+          max_retries: #{JobReceitaFederal_Task2Retry}#
+          min_retry_interval_millis: #{JobReceitaFederal_Task2RetryIntervalInMilliseconds}#
+          retry_on_timeout: #{JobReceitaFederal_Task2RetryInTimeout}#
+          timeout_seconds: #{JobReceitaFederal_Task2TimeoutInSeconds}#
+          health:
+            rules:
+              - metric: RUN_DURATION_SECONDS
+                op: GREATER_THAN
+                value: #{JobReceitaFederal_Task2WarningInSeconds}#
+          webhook_notifications:
+            on_start:
+              - id: #{Global_SlackWebhook}#
+            on_success:
+              - id: #{Global_SlackWebhook}#
+            on_failure:
+              - id: #{Global_SlackWebhook}#
+            on_duration_warning_threshold_exceeded:
+              - id: #{Global_SlackWebhook}#
+      job_clusters:
+        - job_cluster_key: #{JobReceitaFederal_JobClusterName}#_cluster
+          new_cluster:
+            cluster_name: #{JobReceitaFederal_JobClusterName}#_cluster
+            spark_version: #{JobReceitaFederal_JobClusterSparkVersion}#
+            azure_attributes:
+              first_on_demand: #{JobReceitaFederal_JobClusterSpotFirstOnDemand}#
+              availability: #{JobReceitaFederal_JobClusterSpotAvailability}#
+              spot_bid_max_price: #{JobReceitaFederal_JobClusterSpotBidMaxPrice}#
+            node_type_id: #{JobReceitaFederal_JobClusterNodeType}
+            driver_node_type_id: #{JobReceitaFederal_JobClusterDriverType}#
+            spark_env_vars:
+              PYSPARK_PYTHON: /databricks/python3/bin/python3
+              ENVIRONMENT_CLUSTER: #{Global_EnvironmentLower}#
+            enable_elastic_disk: #{JobReceitaFederal_JobClusterEnableElasticDisk}#
+            data_security_mode: #{JobReceitaFederal_JobClusterDataSecurityMode}#
+            runtime_engine: #{JobReceitaFederal_JobClusterRuntimeEngine}#
+            autoscale:
+              min_workers: #{JobReceitaFederal_JobClusterAutoscaleMinWorker}#
+              max_workers: #{JobReceitaFederal_JobClusterAutoscaleMaxWorker}#
+      git_source:
+        git_url: #{Global_GithubUrl}#
+        git_provider: gitHub
+        git_branch: #{Global_GithubBranch}#
+      tags:
+        environment_job: #{Global_EnvironmentLower}#
+      parameters:
+        - name: environment_param_job
+          default: #{Global_EnvironmentLower}#

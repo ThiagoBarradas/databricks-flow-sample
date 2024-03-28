@@ -1,12 +1,6 @@
 # Databricks notebook source
 # DBTITLE 1,Setup
-# Install Dependencies and Setup Framework
-%pip install -r ../../00-framework/requirements.txt --quiet
-
-import sys
-sys.path.append('../../00-framework')
-from data_framework import DataFramework
-fw = DataFramework(dbutils, spark)
+# MAGIC %run ../../00-framework/setup_framework
 
 # COMMAND ----------
 
