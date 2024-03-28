@@ -133,10 +133,8 @@ stages:
       inputs:
         root: '$(System.DefaultWorkingDirectory)/$(project_name)Neutral'
         sources: |
-          *.env
           **/*.env
-          **/**/*.env
-          **/**/**/*.env
+          **/.env
     - task: PublishPipelineArtifact@1
       displayName: Store Application Artifact
       inputs:
@@ -159,10 +157,8 @@ stages:
       inputs:
         root: '$(System.DefaultWorkingDirectory)/$(project_name)Neutral'
         sources: |
-          *.env
           **/*.env
-          **/**/*.env
-          **/**/**/*.env   
+          **/.env
     - task: PublishPipelineArtifact@1
       displayName: Store Application Artifact
       inputs:
