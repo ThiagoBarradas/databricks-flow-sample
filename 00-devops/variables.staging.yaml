@@ -1,0 +1,3 @@
+variables:
+- group: Databricks_Global_STG
+- group: Databricks_Raw_ReceitaFederal_STG
