@@ -91,16 +91,15 @@ stages:
       clean: all
     steps:
     - script: |
-        mkdir $(Build.SourcesDirectory)/artifact
+        mkdir artifact
         ls $(Build.Repository.LocalPath)
-        cp -r $(Build.Repository.LocalPath)/* artifact
+        cp -r $(Build.Repository.LocalPath)/* $(System.DefaultWorkingDirectory)/artifact
         echo "### reading env files.."
-        find "artifact" -name "*.env" -print0 | while read -d $'\0' file
+        find "$(System.DefaultWorkingDirectory)artifact" -name "*.env" -print0 | while read -d $'\0' file
         do
             echo "# $file"
             IFS=$'\n'
             for line in $(cat $file)
-
             do
                 var_name=$(echo "$line" | cut -d "=" -f 1)
                 echo ">> line: $line"
@@ -108,7 +107,7 @@ stages:
                 sed -i~ "/^$var_name=/s/=.*/=#{$var_name}#/" $file
             done
         done
-        rm -rf artifact/artifact
+        rm -rf $(System.DefaultWorkingDirectory)/artifact/artifact
         find $(Build.Repository.LocalPath) -delete -name "*.env~"
       displayName: Build Application
     - task: PublishPipelineArtifact@1
