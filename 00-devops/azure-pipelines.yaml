@@ -95,7 +95,7 @@ stages:
         ls $(Build.Repository.LocalPath)
         cp -r $(Build.Repository.LocalPath)/* $(System.DefaultWorkingDirectory)/artifact
         echo "### reading env files.."
-        find "$(System.DefaultWorkingDirectory)artifact" -name "*.env" -print0 | while read -d $'\0' file
+        find "$(System.DefaultWorkingDirectory)/artifact" -name "*.env" -print0 | while read -d $'\0' file
         do
             echo "# $file"
             IFS=$'\n'
@@ -128,9 +128,10 @@ stages:
       displayName: Get Neutral Artifact
       inputs:
         artifact: $(project_name)Neutral
+        downloadPath: '$(System.DefaultWorkingDirectory)'
     - task: replacetokens@6
       inputs:
-        root: '$(project_name)Neutral'
+        root: '$(System.DefaultWorkingDirectory)/$(project_name)Neutral'
         sources: '**/*.env'    
     - task: PublishPipelineArtifact@1
       displayName: Store Application Artifact
@@ -149,9 +150,10 @@ stages:
       displayName: Get Neutral Artifact
       inputs:
         artifact: $(project_name)Neutral
+        downloadPath: '$(System.DefaultWorkingDirectory)'
     - task: replacetokens@6
       inputs:
-        root: '$(project_name)Neutral'
+        root: '$(System.DefaultWorkingDirectory)/$(project_name)Neutral'
         sources: '**/*.env'    
     - task: PublishPipelineArtifact@1
       displayName: Store Application Artifact
