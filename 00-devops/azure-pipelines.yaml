@@ -136,7 +136,7 @@ stages:
     - task: PublishPipelineArtifact@1
       displayName: Store Application Artifact
       inputs:
-        path: $(project_name)Neutral
+        path: $(System.DefaultWorkingDirectory)/$(project_name)Neutral
         artifact: $(project_name)
 
   - job: AddConfigurationForProductionAndPublishArtifact
@@ -158,7 +158,7 @@ stages:
     - task: PublishPipelineArtifact@1
       displayName: Store Application Artifact
       inputs:
-        path: $(project_name)Neutral
+        path: $(System.DefaultWorkingDirectory)/$(project_name)Neutral
         artifact: $(project_name)
 
   - job: UnitTests
