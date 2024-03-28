@@ -96,8 +96,7 @@ stages:
     - script: |
         echo "build here"
         mkdir artifact
-        copy . artifact
-        rm -f artifact/artifact
+        copy $(Build.Repository.LocalPath) artifact
 
         echo "reading env files.."
         find "artifact" -name ".env" -print0 | while read -d $'\0' file
