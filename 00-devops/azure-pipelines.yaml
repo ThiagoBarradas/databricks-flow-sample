@@ -128,7 +128,7 @@ stages:
       displayName: Get Neutral Artifact
       inputs:
         artifact: $(project_name)Neutral
-        downloadPath: '$(System.DefaultWorkingDirectory)'
+        downloadPath: '$(System.DefaultWorkingDirectory)/$(project_name)Neutral'
     - task: replacetokens@6
       inputs:
         root: '$(System.DefaultWorkingDirectory)/$(project_name)Neutral'
@@ -150,7 +150,7 @@ stages:
       displayName: Get Neutral Artifact
       inputs:
         artifact: $(project_name)Neutral
-        downloadPath: '$(System.DefaultWorkingDirectory)'
+        downloadPath: '$(System.DefaultWorkingDirectory)/$(project_name)Neutral'
     - task: replacetokens@6
       inputs:
         root: '$(System.DefaultWorkingDirectory)/$(project_name)Neutral'
