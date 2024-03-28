@@ -91,12 +91,10 @@ stages:
       clean: all
     steps:
     - script: |
-        echo "build here"
         mkdir $(Build.SourcesDirectory)/artifact
         ls $(Build.Repository.LocalPath)
         cp -r $(Build.Repository.LocalPath)/* $(Build.SourcesDirectory)/artifact
-
-        echo "reading env files.."
+        echo "### reading env files.."
         find "artifact" -name "*.env" -print0 | while read -d $'\0' file
         do
             echo "# $file"
@@ -110,11 +108,14 @@ stages:
                 sed -i~ "/^$var_name=/s/=.*/=#{$var_name}#/" $file
             done
         done
-
         rm -rf $(Build.SourcesDirectory)/artifact/artifact
         find $(Build.Repository.LocalPath) -delete -name "*.env~"
-
       displayName: Build Application
+    - task: PublishPipelineArtifact@1
+      displayName: Store Neutral Application Artifact
+      inputs:
+        path: $(System.DefaultWorkingDirectory)/artifact
+        artifact: $(project_name)Neutral
 
   - job: AddConfigurationForStagingAndPublishArtifact
     variables:
@@ -124,14 +125,18 @@ stages:
     # remover not da condition abaixo, apenas pra teste
     condition: and(succeeded(), not(eq(variables['Build.SourceBranchName'], 'develop')))
     steps:
+    - task: DownloadPipelineArtifact@2
+      displayName: Get Neutral Artifact
+      inputs:
+        artifact: $(project_name)Neutral
     - task: replacetokens@6
       inputs:
-        root: '$(Build.SourcesDirectory)/artifact'
+        root: '$(project_name)Neutral'
         sources: '**/*.env'    
     - task: PublishPipelineArtifact@1
       displayName: Store Application Artifact
       inputs:
-        path: $(System.DefaultWorkingDirectory)/artifact
+        path: $(project_name)Neutral
         artifact: $(project_name)
 
   - job: AddConfigurationForProductionAndPublishArtifact
@@ -141,14 +146,18 @@ stages:
     - Build
     condition: and(succeeded(), contains(variables['Build.SourceBranch'], '/tags/'))
     steps:
+    - task: DownloadPipelineArtifact@2
+      displayName: Get Neutral Artifact
+      inputs:
+        artifact: $(project_name)Neutral
     - task: replacetokens@6
       inputs:
-        root: '$(Build.SourcesDirectory)/artifact'
+        root: '$(project_name)Neutral'
         sources: '**/*.env'    
     - task: PublishPipelineArtifact@1
       displayName: Store Application Artifact
       inputs:
-        path: $(System.DefaultWorkingDirectory)/artifact
+        path: $(project_name)Neutral
         artifact: $(project_name)
 
   - job: UnitTests
