@@ -28,9 +28,6 @@ pool:
 
 stages:
 - stage: BuildApp
-  variables:
-  - group: Databricks_Global_STG
-  - group: Databricks_Raw_ReceitaFederal_STG
   jobs:
   - job: UpdateBuildVersion
     workspace:
@@ -100,11 +97,12 @@ stages:
         cp -r $(Build.Repository.LocalPath)/* artifact
 
         echo "reading env files.."
-        find "artifact" -name ".env" -print0 | while read -d $'\0' file
+        find "artifact" -name "*.env" -print0 | while read -d $'\0' file
         do
             echo "# $file"
             IFS=$'\n'
             for line in $(cat $file)
+
             do
                 var_name=$(echo "$line" | cut -d "=" -f 1)
                 echo ">> line: $line"
@@ -113,7 +111,40 @@ stages:
             done
         done
 
+        rm -rf $(Build.Repository.LocalPath)/artifact
+        find $(Build.Repository.LocalPath) -delete -name "*.env~"
+
       displayName: Build Application
+
+  - job: AddConfigurationForStagingAndPublishArtifact
+    variables:
+    - template: variables.staging.yaml
+    dependsOn: 
+    - Build
+    # remover not da condition abaixo, apenas pra teste
+    condition: and(succeeded(), not(eq(variables['Build.SourceBranchName'], 'develop')))
+    steps:
+    - task: replacetokens@6
+      inputs:
+        root: '$(Build.Repository.LocalPath)/artifact'
+        sources: '**/*.env'    
+    - task: PublishPipelineArtifact@1
+      displayName: Store Application Artifact
+      inputs:
+        path: $(System.DefaultWorkingDirectory)/artifact
+        artifact: $(project_name)
+
+  - job: AddConfigurationForProductionAndPublishArtifact
+    variables:
+    - template: variables.production.yaml
+    dependsOn: 
+    - Build
+    condition: and(succeeded(), contains(variables['Build.SourceBranch'], '/tags/'))
+    steps:
+    - task: replacetokens@6
+      inputs:
+        root: '$(Build.Repository.LocalPath)/artifact'
+        sources: '**/*.env'    
     - task: PublishPipelineArtifact@1
       displayName: Store Application Artifact
       inputs:
