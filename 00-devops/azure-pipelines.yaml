@@ -108,7 +108,7 @@ stages:
             done
         done
         rm -rf $(System.DefaultWorkingDirectory)/artifact/artifact
-        find $(Build.Repository.LocalPath) -delete -name "*.env~"
+        find $(System.DefaultWorkingDirectory)/artifact -name "*.env~" -delete
       displayName: Build Application
     - task: PublishPipelineArtifact@1
       displayName: Store Neutral Application Artifact
