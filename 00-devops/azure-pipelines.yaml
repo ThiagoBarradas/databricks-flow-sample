@@ -92,9 +92,9 @@ stages:
     steps:
     - script: |
         echo "build here"
-        mkdir artifact
+        mkdir $(Build.SourcesDirectory)/artifact
         ls $(Build.Repository.LocalPath)
-        cp -r $(Build.Repository.LocalPath)/* artifact
+        cp -r $(Build.Repository.LocalPath)/* $(Build.SourcesDirectory)/artifact
 
         echo "reading env files.."
         find "artifact" -name "*.env" -print0 | while read -d $'\0' file
@@ -111,7 +111,7 @@ stages:
             done
         done
 
-        rm -rf $(Build.Repository.LocalPath)/artifact
+        rm -rf $(Build.SourcesDirectory)/artifact/artifact
         find $(Build.Repository.LocalPath) -delete -name "*.env~"
 
       displayName: Build Application
@@ -126,7 +126,7 @@ stages:
     steps:
     - task: replacetokens@6
       inputs:
-        root: '$(Build.Repository.LocalPath)/artifact'
+        root: '$(Build.SourcesDirectory)/artifact'
         sources: '**/*.env'    
     - task: PublishPipelineArtifact@1
       displayName: Store Application Artifact
@@ -143,7 +143,7 @@ stages:
     steps:
     - task: replacetokens@6
       inputs:
-        root: '$(Build.Repository.LocalPath)/artifact'
+        root: '$(Build.SourcesDirectory)/artifact'
         sources: '**/*.env'    
     - task: PublishPipelineArtifact@1
       displayName: Store Application Artifact
