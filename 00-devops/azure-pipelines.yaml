@@ -1,0 +1,134 @@
+# - CI/CD for Databricks
+
+variables:
+  organization: 'barradas'
+  project_name: 'DatabricksFlow'
+  execute_test: true
+
+trigger:
+  branches:
+    include:
+    - feature/*
+    - fix/*
+    - release/*
+    - hotfix/*
+    - develop
+  tags:
+    include: 
+    - '*'
+
+pr:
+  branches:
+    include:
+    - develop
+    - main
+
+pool:
+  vmImage: 'ubuntu-latest' 
+
+stages:
+- stage: BuildApp
+  variables:
+  - group: Databricks_Global_STG
+  - group: Databricks_Raw_ReceitaFederal_STG
+  jobs:
+  - job: UpdateBuildVersion
+    workspace:
+      clean: all
+    variables: 
+      current_counter: $[counter(variables['Build.SourceBranchName'], 1)]    
+    steps:
+    - bash: |
+        if [[ "$(Build.SourceVersionMessage)" =~ "hotfix/" ]];
+        then 
+            echo "##vso[task.setvariable variable=IsHotfix;isOutput=true]true"
+            echo "##vso[task.setvariable variable=PreviousPrefix;isOutput=true]hotfix"
+        else
+            echo "##vso[task.setvariable variable=IsHotfix;isOutput=true]false"
+            echo "##vso[task.setvariable variable=PreviousPrefix;isOutput=true]release"
+        fi
+        if [[ "$(Build.SourceBranch)" =~ "/hotfix/" ]] ||
+           [[ "$(Build.SourceBranch)" =~ "/release/" ]]; 
+        then
+            echo "Generate Preview Release Version"
+            echo "Version: $(Build.SourceBranchName)"
+            echo "         $(Build.SourceBranchName)-preview.$(current_counter)"
+            echo "##vso[build.updatebuildnumber]$(Build.SourceBranchName)-preview.$(current_counter)"
+            echo "##vso[task.setvariable variable=PureVersion;isOutput=true]$(Build.SourceBranchName)"
+        elif [[ "$(Build.SourceBranch)" =~ "/tags/" ]];
+        then
+            echo "Generate Release Version"
+            echo "Version: $(Build.SourceBranchName)"
+            echo "##vso[build.updatebuildnumber]$(Build.SourceBranchName)"
+            echo "##vso[task.setvariable variable=SonarMasterWhenTag;isOutput=true]sonar.branch.name=master"
+            echo "##vso[task.setvariable variable=PureVersion;isOutput=true]$(Build.SourceBranchName)"
+        else
+            echo "Generate Development Version"
+            echo "##vso[build.updatebuildnumber]$(Build.BuildNumber)-develop"
+            echo "Version: $(Build.BuildNumber)-develop"
+        fi
+      displayName: Update Version Number
+      name: UpdateBuildVersionTask
+    - bash: |
+        STAGING_URL="https://dev.azure.com/$(organization)/$(System.TeamProject)/_apis/build/status/$(System.DefinitionId)?branchName=$(UpdateBuildVersionTask.PreviousPrefix)/$(Build.BuildNumber)&stageName=DeployPackage"
+        STAGING_RESULT=$`curl --silent $STAGING_URL`
+        echo "URL: $STAGING_URL" 
+        echo "RESULT: $STAGING_RESULT"
+        SUCCEEDED=$`echo $STAGING_RESULT | grep -P 'succeeded' -o | head -n 1`
+        if [[ "$STAGING_RESULT" =~ "succeeded" ]];
+        then
+            echo "$PREVIOUS_PREFIX branch is ok!"
+        else
+            echo "$PREVIOUS_PREFIX branch is not ok!"
+            exit 1
+        fi
+      condition: contains(variables['Build.SourceBranch'], '/tags/')
+      displayName: Break if release/hotfix branch is not passing
+      name: BreakIsReleaseOrHotfixIsNotPassing
+
+  - job: Build
+    dependsOn: 
+    - UpdateBuildVersion    
+    condition: succeeded()
+    workspace:
+      clean: all
+    steps:
+    - script: |
+        echo "build here"
+        mkdir artifact
+        copy . artifact
+        rm -f artifact/artifact
+
+        echo "reading env files.."
+        find "artifact" -name ".env" -print0 | while read -d $'\0' file
+        do
+            echo "# $file"
+            IFS=$'\n'
+            for line in $(cat $file)
+            do
+                var_name=$(echo "$line" | cut -d "=" -f 1)
+                echo ">> line: $line"
+                echo ">>> var_name: $var_name"
+                sed -i~ "/^$var_name=/s/=.*/=#{$var_name}#/" $file
+            done
+        done
+
+      displayName: Build Application
+    - task: PublishPipelineArtifact@1
+      displayName: Store Application Artifact
+      inputs:
+        path: $(System.DefaultWorkingDirectory)/artifact
+        artifact: $(project_name)
+
+  - job: UnitTests
+    dependsOn: 
+    - UpdateBuildVersion
+    - Build
+    workspace:
+      clean: all
+    condition: and(succeeded(), eq(variables['execute_test'], 'true'))
+    steps:
+    - script: | 
+        echo "execute unit tests"
+      displayName: Running Unit Tests
+      name: UnitTestsTask
