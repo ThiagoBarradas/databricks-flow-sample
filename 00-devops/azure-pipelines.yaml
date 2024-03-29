@@ -98,6 +98,9 @@ stages:
         find "$(System.DefaultWorkingDirectory)/artifact" -name "*.env" -print0 | while read -d $'\0' file
         do
             echo "# $file"
+            if [[ $file == *"00-jobs"* ]]; then
+              continue
+            fi
             IFS=$'\n'
             for line in $(cat $file)
             do
@@ -135,6 +138,7 @@ stages:
         sources: |
           **/*.env
           **/.env
+          **/*.job.yaml
     - task: PublishPipelineArtifact@1
       displayName: Store Application Artifact
       inputs:
@@ -208,7 +212,7 @@ stages:
               artifact: $(project_name)Staging
               downloadPath: '$(System.DefaultWorkingDirectory)/$(project_name)Staging'
           - task: UsePythonVersion@0
-            displayName: Update Workspace Files 
+            displayName: Config Python
             inputs:
               versionSpec: '3.10'
               addToPath: true
@@ -227,3 +231,4 @@ stages:
               databricks auth profiles
               databricks workspace delete $(DATABRICKS_WORKSPACE_PATH) --recursive --profile=$(DATABRICKS_CONFIG_PROFILE)
               databricks workspace import-dir $(System.DefaultWorkingDirectory)/$(project_name)Staging $(DATABRICKS_WORKSPACE_PATH) --profile=$(DATABRICKS_CONFIG_PROFILE)
+            displayName: Update Workspace Files 
