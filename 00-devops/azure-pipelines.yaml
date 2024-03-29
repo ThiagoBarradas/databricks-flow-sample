@@ -116,7 +116,7 @@ stages:
         path: $(System.DefaultWorkingDirectory)/artifact
         artifact: $(project_name)Neutral
 
-  - job: AddConfigurationForStagingAndPublishArtifact
+  - job: ArtifactForStaging
     variables:
     - template: variables.staging.yaml
     dependsOn: 
@@ -141,7 +141,7 @@ stages:
         path: $(System.DefaultWorkingDirectory)/$(project_name)Neutral
         artifact: $(project_name)Staging
 
-  - job: AddConfigurationForProductionAndPublishArtifact
+  - job: ArtifactForProduction
     variables:
     - template: variables.production.yaml
     dependsOn: 
@@ -187,20 +187,16 @@ stages:
   - name: IsHotfix
     value: $[ stageDependencies.BuildApp.CheckVersion.outputs['CheckVersionTask.IsHotfix'] ]
   jobs:
-  - job: PrintingIsHotfix
-    steps:
-    - bash: | 
-          echo "IsHotfix: $(IsHotfix)"
-          echo "##vso[task.setvariable variable=IsHotfix;isOutput=true]$(IsHotfix)"
-      displayName: Printing if is Hotfix 
-      name: PrintingIsHotfixTask
-  - deployment: DatabricksStaging
-    dependsOn: PrintingIsHotfix
+  - deployment: DeployDatabricksStaging
     environment: 'DatabricksStaging'
     strategy:
       runOnce:
         deploy:
           steps:
+          - bash: | 
+              echo "IsHotfix: $(IsHotfix)"
+              echo "##vso[task.setvariable variable=IsHotfix;isOutput=true]$(IsHotfix)"
+            displayName: Printing if is Hotfix 
           - script: | 
               echo "notification"
               echo "BuildUrl: $(System.CollectionUri)$(System.TeamProject)/_build/results?buildId=$(Build.BuildId)"
@@ -221,7 +217,7 @@ stages:
               curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
               pip install wheel
               > ~/.databrickscfg
-              echo "[$(DATABRICKS_PROFILE_NAME)]" > ~/.databrickscfg
+              echo "[$(DATABRICKS_CONFIG_PROFILE)]" > ~/.databrickscfg
               echo "host          = $(DATABRICKS_HOST)" >> ~/.databrickscfg
               echo "client_id     = $(DATABRICKS_CLIENT_ID)" >> ~/.databrickscfg
               echo "client_secret = $(DATABRICKS_CLIENT_SECRET)" >> ~/.databrickscfg
