@@ -208,6 +208,7 @@ stages:
               artifact: $(project_name)Staging
               downloadPath: '$(System.DefaultWorkingDirectory)/$(project_name)Staging'
           - task: UsePythonVersion@0
+            displayName: Update Workspace Files 
             inputs:
               versionSpec: '3.10'
               addToPath: true
@@ -218,11 +219,10 @@ stages:
               pip install wheel
               export DATABRICKS_CLIENT_SECRET=$(DATABRICKS_CLIENT_SECRET)
               > ~/.databrickscfg
-              echo "[$(DATABRICKS_CONFIG_PROFILE)]" > ~/.databrickscfg
+              echo "[$(DATABRICKS_CONFIG_PROFILE)]" >> ~/.databrickscfg
               echo "host          = $(DATABRICKS_HOST)" >> ~/.databrickscfg
               echo "client_id     = $(DATABRICKS_CLIENT_ID)" >> ~/.databrickscfg
               echo "client_secret = $(DATABRICKS_CLIENT_SECRET)" >> ~/.databrickscfg
-              echo "auth_type     = $(DATABRICKS_AUTH_TYPE)" >> ~/.databrickscfg
               cat ~/.databrickscfg
               databricks auth profiles
               databricks workspace delete $(DATABRICKS_WORKSPACE_PATH) --recursive --profile=$(DATABRICKS_CONFIG_PROFILE)
