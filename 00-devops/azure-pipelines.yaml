@@ -139,7 +139,7 @@ stages:
       displayName: Store Application Artifact
       inputs:
         path: $(System.DefaultWorkingDirectory)/$(project_name)Neutral
-        artifact: $(project_name)
+        artifact: $(project_name)Staging
 
   - job: AddConfigurationForProductionAndPublishArtifact
     variables:
@@ -163,7 +163,7 @@ stages:
       displayName: Store Application Artifact
       inputs:
         path: $(System.DefaultWorkingDirectory)/$(project_name)Neutral
-        artifact: $(project_name)
+        artifact: $(project_name)Production
 
   - job: UnitTests
     dependsOn: 
@@ -177,3 +177,48 @@ stages:
         echo "execute unit tests"
       displayName: Running Unit Tests
       name: UnitTestsTask
+
+- stage: DeployStaging
+  dependsOn: BuildApp
+  # remover not da condition abaixo, apenas pra teste
+  condition: and(succeeded(), not(eq(variables['Build.SourceBranchName'], 'develop')))
+  variables:
+  - group: Databricks_Deploy_STG
+  - name: IsHotfix
+    value: $[ stageDependencies.BuildApp.CheckVersion.outputs['CheckVersionTask.IsHotfix'] ]
+  jobs:
+  - job: PrintingIsHotfix
+    steps:
+    - bash: | 
+          echo "IsHotfix: $(IsHotfix)"
+          echo "##vso[task.setvariable variable=IsHotfix;isOutput=true]$(IsHotfix)"
+      displayName: Printing if is Hotfix 
+      name: PrintingIsHotfixTask
+  - deployment: DatabricksStaging
+    dependsOn: PrintingIsHotfix
+    environment: 'DatabricksStaging'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - script: | 
+              echo "notification"
+              echo "BuildUrl: $(System.CollectionUri)$(System.TeamProject)/_build/results?buildId=$(Build.BuildId)"
+              echo "IsHotfix: $(IsHotfix)"
+            displayName: 'Deploy Notification'
+          - task: DownloadPipelineArtifact@2
+            displayName: Get Staging Artifact
+            inputs:
+              artifact: $(project_name)Staging
+              downloadPath: '$(System.DefaultWorkingDirectory)/$(project_name)Staging'
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: '3.10'
+              addToPath: true
+              architecture: 'x64'
+          - script: |
+              rm -rf $(Build.ArtifactStagingDirectory)/$(project_name).$(Build.BuildId)/.git
+              curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
+              pip install wheel
+              databricks workspace delete $(DATABRICKS_WORKSPACE_PATH) --recursive
+              databricks workspace import-dir $(System.DefaultWorkingDirectory)/$(project_name)Staging $(DATABRICKS_WORKSPACE_PATH)
