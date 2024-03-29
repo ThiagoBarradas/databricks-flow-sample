@@ -1,4 +1,5 @@
 variables:
 - group: Databricks_Global_PRD
+- group: Databricks_Deploy_PRD
 - group: Databricks_Raw_ReceitaFederal_PRD
 - group: Databricks_Jobs_ReceitaFederal_PRD

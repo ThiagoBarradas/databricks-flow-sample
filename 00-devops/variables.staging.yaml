@@ -1,4 +1,5 @@
 variables:
 - group: Databricks_Global_STG
+- group: Databricks_Deploy_STG
 - group: Databricks_Raw_ReceitaFederal_STG
 - group: Databricks_Jobs_ReceitaFederal_STG
