@@ -220,5 +220,10 @@ stages:
               rm -rf $(Build.ArtifactStagingDirectory)/$(project_name).$(Build.BuildId)/.git
               curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
               pip install wheel
+              > ~/.databrickscfg
+              echo "[default]" > ~/.databrickscfg
+              echo "host          = https://adb-2192502514482432.12.azuredatabricks.net" >> ~/.databrickscfg
+              echo "client_id     = bd96ce40-0345-4808-b12e-cf6ea058d021" >> ~/.databrickscfg
+              echo "client_secret = doseb7fc06735402630f43333c9dfd928e0b" >> ~/.databrickscfg
               databricks workspace delete $(DATABRICKS_WORKSPACE_PATH) --recursive
               databricks workspace import-dir $(System.DefaultWorkingDirectory)/$(project_name)Staging $(DATABRICKS_WORKSPACE_PATH)
