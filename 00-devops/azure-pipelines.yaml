@@ -223,7 +223,7 @@ stages:
               echo "client_id     = $(DATABRICKS_CLIENT_ID)" >> ~/.databrickscfg
               echo "client_secret = $(DATABRICKS_CLIENT_SECRET)" >> ~/.databrickscfg
               echo "auth_type     = $(DATABRICKS_AUTH_TYPE)" >> ~/.databrickscfg
-              env
+              cat ~/.databrickscfg
               databricks auth profiles
-              databricks workspace delete $(DATABRICKS_WORKSPACE_PATH) --recursive
-              databricks workspace import-dir $(System.DefaultWorkingDirectory)/$(project_name)Staging $(DATABRICKS_WORKSPACE_PATH)
+              databricks workspace delete $(DATABRICKS_WORKSPACE_PATH) --recursive --profile=$(DATABRICKS_CONFIG_PROFILE)
+              databricks workspace import-dir $(System.DefaultWorkingDirectory)/$(project_name)Staging $(DATABRICKS_WORKSPACE_PATH) --profile=$(DATABRICKS_CONFIG_PROFILE)
