@@ -216,6 +216,7 @@ stages:
               rm -rf $(Build.ArtifactStagingDirectory)/$(project_name).$(Build.BuildId)/.git
               curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
               pip install wheel
+              export DATABRICKS_CLIENT_SECRET=$(DATABRICKS_CLIENT_SECRET)
               > ~/.databrickscfg
               echo "[$(DATABRICKS_CONFIG_PROFILE)]" > ~/.databrickscfg
               echo "host          = $(DATABRICKS_HOST)" >> ~/.databrickscfg
