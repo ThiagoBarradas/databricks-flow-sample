@@ -218,17 +218,38 @@ stages:
               addToPath: true
               architecture: 'x64'
           - script: |
-              rm -rf $(Build.ArtifactStagingDirectory)/$(project_name).$(Build.BuildId)/.git
               curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
               pip install wheel
-              export DATABRICKS_CLIENT_SECRET=$(DATABRICKS_CLIENT_SECRET)
               > ~/.databrickscfg
-              echo "[$(DATABRICKS_CONFIG_PROFILE)]" >> ~/.databrickscfg
+              echo "[workspace]" >> ~/.databrickscfg
               echo "host          = $(DATABRICKS_HOST)" >> ~/.databrickscfg
               echo "client_id     = $(DATABRICKS_CLIENT_ID)" >> ~/.databrickscfg
               echo "client_secret = $(DATABRICKS_CLIENT_SECRET)" >> ~/.databrickscfg
+              echo "" >> ~/.databrickscfg
+              echo "[jobs]" >> ~/.databrickscfg
+              echo "host          = $(DATABRICKS_HOST)" >> ~/.databrickscfg
+              echo "client_id     = $(DATABRICKS_CLIENT_ID)" >> ~/.databrickscfg
+              echo "client_secret = $(DATABRICKS_CLIENT_SECRET)" >> ~/.databrickscfg
+              echo "account_id    = $(DATABRICKS_ACCOUNT_ID)" >> ~/.databrickscfg
               cat ~/.databrickscfg
               databricks auth profiles
-              databricks workspace delete $(DATABRICKS_WORKSPACE_PATH) --recursive --profile=$(DATABRICKS_CONFIG_PROFILE)
-              databricks workspace import-dir $(System.DefaultWorkingDirectory)/$(project_name)Staging $(DATABRICKS_WORKSPACE_PATH) --profile=$(DATABRICKS_CONFIG_PROFILE)
+            displayName: Config Databricks CLI
+          - script: |
+              rm -rf $(Build.ArtifactStagingDirectory)/$(project_name).$(Build.BuildId)/.git
+              databricks workspace delete $(DATABRICKS_WORKSPACE_PATH) --recursive --profile=workspace
+              databricks workspace import-dir $(System.DefaultWorkingDirectory)/$(project_name)Staging $(DATABRICKS_WORKSPACE_PATH) --profile=workspace
             displayName: Update Workspace Files 
+          - script: |
+              find "$(System.DefaultWorkingDirectory)/$(project_name)Staging/05-jobs" -name "*.job.json" -print0 | while read -d $'\0' file
+              do
+                  echo "# $file"
+                  #check create or update
+                  exists="true"
+                  if [ $exists -eq "true" ]
+                  then
+                    echo "update here"
+                  else
+                    databricks jobs create --json="@$file" --profile=jobs
+                  fi
+              done
+            displayName: Update Jobs
