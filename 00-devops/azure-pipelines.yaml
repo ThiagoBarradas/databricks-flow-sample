@@ -36,10 +36,16 @@ stages:
       current_counter: $[counter(variables['Build.SourceBranchName'], 1)]    
     steps:
     - bash: |
+        echo "message=$(Build.SourceVersionMessage)"
+        echo "branch=$(Build.SourceBranch)"
+        echo "branch_name=$(Build.SourceBranchName)"
+        echo "build_number=$(Build.BuildNumber)"
+        echo "current_counter=$(current_counter)"
+
         bash $(Build.Repository.LocalPath)/00-devops/scripts/update_build_version.bash \
           --message="$(Build.SourceVersionMessage)" \
           --branch="$(Build.SourceBranch)" \
-          --branch_name="$(Build.SourceBranchName) \
+          --branch_name="$(Build.SourceBranchName)" \
           --build_number="$(Build.BuildNumber)" \
           --current_counter=$(current_counter)
       displayName: Update Version Number
