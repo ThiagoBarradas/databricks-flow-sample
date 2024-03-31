@@ -36,34 +36,11 @@ stages:
       current_counter: $[counter(variables['Build.SourceBranchName'], 1)]    
     steps:
     - bash: |
-        if [[ "$(Build.SourceVersionMessage)" =~ "hotfix/" ]];
-        then 
-            echo "##vso[task.setvariable variable=IsHotfix;isOutput=true]true"
-            echo "##vso[task.setvariable variable=PreviousPrefix;isOutput=true]hotfix"
-        else
-            echo "##vso[task.setvariable variable=IsHotfix;isOutput=true]false"
-            echo "##vso[task.setvariable variable=PreviousPrefix;isOutput=true]release"
-        fi
-        if [[ "$(Build.SourceBranch)" =~ "/hotfix/" ]] ||
-           [[ "$(Build.SourceBranch)" =~ "/release/" ]]; 
-        then
-            echo "Generate Preview Release Version"
-            echo "Version: $(Build.SourceBranchName)"
-            echo "         $(Build.SourceBranchName)-preview.$(current_counter)"
-            echo "##vso[build.updatebuildnumber]$(Build.SourceBranchName)-preview.$(current_counter)"
-            echo "##vso[task.setvariable variable=PureVersion;isOutput=true]$(Build.SourceBranchName)"
-        elif [[ "$(Build.SourceBranch)" =~ "/tags/" ]];
-        then
-            echo "Generate Release Version"
-            echo "Version: $(Build.SourceBranchName)"
-            echo "##vso[build.updatebuildnumber]$(Build.SourceBranchName)"
-            echo "##vso[task.setvariable variable=SonarMasterWhenTag;isOutput=true]sonar.branch.name=master"
-            echo "##vso[task.setvariable variable=PureVersion;isOutput=true]$(Build.SourceBranchName)"
-        else
-            echo "Generate Development Version"
-            echo "##vso[build.updatebuildnumber]$(Build.BuildNumber)-develop"
-            echo "Version: $(Build.BuildNumber)-develop"
-        fi
+        bash $(Build.Repository.LocalPath)/00-devops/scripts/update_build_version.bash \
+          --message="$(Build.SourceVersionMessage)" \
+          --branch="$(Build.SourceBranch)" \
+          --branch_name="$(Build.SourceBranchName) \
+          --build_number="$(Build.BuildNumber)"
       displayName: Update Version Number
       name: UpdateBuildVersionTask
     - bash: |
