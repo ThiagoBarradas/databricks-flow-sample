@@ -240,7 +240,7 @@ stages:
               databricks workspace import-dir $(System.DefaultWorkingDirectory)/$(project_name)Staging $(DATABRICKS_WORKSPACE_PATH) --profile=workspace
             displayName: Update Workspace Files 
           - script: |
-              bash $(Build.Repository.LocalPath)/00-devops/scripts/deploy_jobs.bash \
+              bash $(System.DefaultWorkingDirectory)/$(project_name)Staging/00-devops/scripts/deploy_jobs.bash \
                 --profile=jobs \
                 --job_prefix=$(DATABRICKS_ENVIRONMENT_LOWER) \
                 --jobs_dir=$(System.DefaultWorkingDirectory)/$(project_name)Staging/05-jobs
