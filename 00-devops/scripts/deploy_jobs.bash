@@ -6,11 +6,10 @@ echo ""
 # get vars
 for ARGUMENT in "$@"
 do
-   KEY=$(echo $ARGUMENT | cut -f1 -d=)
-
-   KEY_LENGTH=${#KEY}
-   VALUE="${ARGUMENT:$KEY_LENGTH+1}"
-   export "$(echo $KEY | tr -d '-')"="$VALUE"
+  KEY=$(echo $ARGUMENT | cut -f1 -d=)
+  KEY_LENGTH=${#KEY}
+  VALUE="${ARGUMENT:$KEY_LENGTH+1}"
+  export "$(echo $KEY | tr -d '-')"="$VALUE"
 done
 
 echo "# Vars"
@@ -41,7 +40,7 @@ for line in $(cat remote_jobs_raw.txt)
 do
   job_name=$(echo "$line" | cut -d" " -f2)
   if  [[ $job_name == $job_prefix* ]]; then
-      echo "$job_name" >> remote_jobs.txt
+    echo "$job_name" >> remote_jobs.txt
   fi
 done
 readarray -t remote_jobs < remote_jobs.txt
@@ -102,14 +101,14 @@ do
   
   if [[ ${jobs_to_create[@]} =~ $job_name ]]; then
     echo "# Creating $job_name from $file"
-	databricks jobs create --json="@$file" --profile=$profile
+	  databricks jobs create --json="@$file" --profile=$profile
   else
-	job_id=$(sed -n "/$job_name/p" remote_jobs_raw.txt | cut -d" " -f1)
+	  job_id=$(sed -n "/$job_name/p" remote_jobs_raw.txt | cut -d" " -f1)
     echo "# Updating $job_name ($job_id) from $file"
-	jq "del(.run_as)" $file > "tmp" && mv "tmp" $file
+	  jq "del(.run_as)" $file > "tmp" && mv "tmp" $file
     jq '{"new_setting": .}' < $file > "tmp" && mv "tmp" $file
-	jq ". += { \"job_id\": \"$job_id\" }" $file > "tmp" && mv "tmp" $file
-	databricks jobs update --json="@$file" --profile=$profile
+	  jq ". += { \"job_id\": $job_id }" $file > "tmp" && mv "tmp" $file
+	  databricks jobs update --json="@$file" --profile=$profile
   fi
 done
 
