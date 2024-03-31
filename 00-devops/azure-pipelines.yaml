@@ -240,16 +240,8 @@ stages:
               databricks workspace import-dir $(System.DefaultWorkingDirectory)/$(project_name)Staging $(DATABRICKS_WORKSPACE_PATH) --profile=workspace
             displayName: Update Workspace Files 
           - script: |
-              find "$(System.DefaultWorkingDirectory)/$(project_name)Staging/05-jobs" -name "*.job.json" -print0 | while read -d $'\0' file
-              do
-                  echo "# $file"
-                  #check create or update
-                  exists="true"
-                  if [ $exists -eq "true" ]
-                  then
-                    echo "update here"
-                  else
-                    databricks jobs create --json="@$file" --profile=jobs
-                  fi
-              done
+              bash $(Build.Repository.LocalPath)/00-devops/scripts/deploy_jobs.bash \
+                --profile=jobs \
+                --job_prefix=$(DATABRICKS_ENVIRONMENT_LOWER) \
+                --jobs_dir=$(System.DefaultWorkingDirectory)/$(project_name)Staging/05-jobs
             displayName: Update Jobs
