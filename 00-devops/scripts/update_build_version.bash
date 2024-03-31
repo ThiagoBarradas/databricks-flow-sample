@@ -17,16 +17,16 @@ echo "message=$message"
 echo "branch=$branch"
 echo "branch_name=$branch_name"
 echo "build_number=$build_number"
-echo "current_counter=$current_counter
+echo "current_counter=$current_counter"
 echo ""
 
 if [[ "$message" =~ "hotfix/" ]];
 then 
-    echo "##vso[task.setvariable variable=IsHotfix;isOutput=true]true"
-    echo "##vso[task.setvariable variable=PreviousPrefix;isOutput=true]hotfix"
+  echo "##vso[task.setvariable variable=IsHotfix;isOutput=true]true"
+  echo "##vso[task.setvariable variable=PreviousPrefix;isOutput=true]hotfix"
 else
-    echo "##vso[task.setvariable variable=IsHotfix;isOutput=true]false"
-    echo "##vso[task.setvariable variable=PreviousPrefix;isOutput=true]release"
+  echo "##vso[task.setvariable variable=IsHotfix;isOutput=true]false"
+  echo "##vso[task.setvariable variable=PreviousPrefix;isOutput=true]release"
 fi
 if [[ "$branch" =~ "/hotfix/" ]] ||
    [[ "$branch" =~ "/release/" ]]; 
