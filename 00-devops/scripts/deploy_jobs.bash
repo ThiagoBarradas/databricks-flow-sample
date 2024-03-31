@@ -116,7 +116,7 @@ done
 for job_name in "${jobs_to_delete[@]}"; do
   job_id=$(sed -n "/$job_name/p" remote_jobs_raw.txt | cut -d" " -f1)
   echo "# Deleting $job_name ($job_id)"
-  databricks jobs update te $job_id --profile=$profile
+  databricks jobs delete $job_id --profile=$profile
 done
 echo ""
 
