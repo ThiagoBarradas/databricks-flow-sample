@@ -40,7 +40,8 @@ stages:
           --message="$(Build.SourceVersionMessage)" \
           --branch="$(Build.SourceBranch)" \
           --branch_name="$(Build.SourceBranchName) \
-          --build_number="$(Build.BuildNumber)"
+          --build_number="$(Build.BuildNumber)" \
+          --current_counter=$(current_counter)
       displayName: Update Version Number
       name: UpdateBuildVersionTask
     - bash: |
