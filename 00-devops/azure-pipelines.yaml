@@ -187,7 +187,7 @@ stages:
   # remover not da condition abaixo, apenas pra teste
   condition: and(succeeded(), not(eq(variables['Build.SourceBranchName'], 'develop')))
   variables:
-  - group: Databricks_Deploy_STG
+  - template: variables.staging.yaml
   - name: IsHotfix
     value: $[ stageDependencies.BuildApp.CheckVersion.outputs['CheckVersionTask.IsHotfix'] ]
   jobs:
