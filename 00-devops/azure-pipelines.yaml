@@ -167,6 +167,7 @@ stages:
           sonar.sourceEncoding=UTF-8
           sonar.scm.forceReloadAll=true
           sonar.python.version=3.9
+          sonar.inclusions=**/*.py
           $(OpencoverSonar)
           $(SonarMainWhenTag)
     - bash: |
