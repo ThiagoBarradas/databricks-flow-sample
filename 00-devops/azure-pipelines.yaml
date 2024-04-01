@@ -186,7 +186,12 @@ stages:
 - stage: DeployStaging
   dependsOn: BuildApp
   # remover not da condition abaixo, apenas pra teste
-  condition: and(succeeded(), not(eq(variables['Build.SourceBranchName'], 'develop')))
+  condition: |
+    and
+    (
+      eq(dependencies.BuildApp.result, 'Succeeded'), 
+      not(eq(variables['Build.SourceBranchName'], 'develop'))
+    )
   variables:
   - template: variables.staging.yaml
   - name: IsHotfix
