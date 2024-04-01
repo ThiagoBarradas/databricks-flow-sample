@@ -152,11 +152,11 @@ stages:
       OpencoverSonar: $[ dependencies.UnitTests.outputs['UnitTestsTask.OpencoverSonar'] ]
     steps:
     - task: SonarCloudPrepare@1
-      displayName: Start Sonarqube Analysis
+      displayName: Start Sonarcloud Analysis
       inputs:
-        SonarCloud: '$(sonarqube_account)'
+        SonarCloud: '$(sonarcloud_account)'
         organization: '$(sonarcloud_organization)'
-        projectKey: '$(sonarqube_project)'
+        projectKey: '$(sonarcloud_project)'
         projectName: '$(main_project_name)'
         scannerMode: 'CLI'
         configMode: manual
@@ -171,15 +171,15 @@ stages:
         pip install -r $(Build.Repository.LocalPath)/00-framework/requirements.txt
       displayName: Running Build For Analysis
     - task: SonarCloudAnalyze@1
-      displayName: Finish Sonarqube Analysis
+      displayName: Finish Sonarcloud Analysis
     - task: SonarCloudPublish@1
-      displayName: Publish Sonarqube Analysis
+      displayName: Publish Sonarcloud Analysis
       inputs:
         pollingTimeoutSec: '300'
     - task: sonarCloud-buildbreaker@2
       inputs:
-        SonarCloud: '$(sonarqube_account)'
-        organization: '$(sonarqube_organization)'
+        SonarCloud: '$(sonarcloud_account)'
+        organization: '$(sonarcloud_organization)'
   
 - stage: DeployStaging
   dependsOn: BuildApp
