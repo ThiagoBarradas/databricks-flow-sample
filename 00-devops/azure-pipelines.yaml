@@ -168,6 +168,7 @@ stages:
           sonar.scm.forceReloadAll=true
           sonar.python.version=3.9
           sonar.inclusions=**/*.py
+          sonar.qualitygate.wait=true
           $(OpencoverSonar)
           $(SonarMainWhenTag)
     - bash: |
