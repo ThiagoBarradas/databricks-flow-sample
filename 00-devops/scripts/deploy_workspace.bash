@@ -19,7 +19,6 @@ echo "profile=$profile"                 # workspace
 echo ""
 
 rm -rf "${import_dir}/.git"
-rm -rf "${import_dir}/00-devops"
 rm -rf "${import_dir}/README.md"
 rm -rf "${import_dir}/.gitignore"
 
