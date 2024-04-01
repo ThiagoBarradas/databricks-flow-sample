@@ -3,7 +3,9 @@
 variables:
   organization: 'barradas'
   project_name: 'DatabricksFlow'
-  execute_test: true
+  sonarcloud_project: 'ThiagoBarradas_databricks-flow-sample'
+  sonarcloud_organization: 'thiagobarradas-github'
+  sonarcloud_account: 'SonarCloudBarradas' 
 
 trigger:
   branches:
@@ -30,18 +32,10 @@ stages:
 - stage: BuildApp
   jobs:
   - job: UpdateBuildVersion
-    workspace:
-      clean: all
     variables: 
       current_counter: $[counter(variables['Build.SourceBranchName'], 1)]    
     steps:
     - bash: |
-        echo "message=$(Build.SourceVersionMessage)"
-        echo "branch=$(Build.SourceBranch)"
-        echo "branch_name=$(Build.SourceBranchName)"
-        echo "build_number=$(Build.BuildNumber)"
-        echo "current_counter=$(current_counter)"
-
         bash $(Build.Repository.LocalPath)/00-devops/scripts/update_build_version.bash \
           --message="$(Build.SourceVersionMessage)" \
           --branch="$(Build.SourceBranch)" \
@@ -51,18 +45,13 @@ stages:
       displayName: Update Version Number
       name: UpdateBuildVersionTask
     - bash: |
-        STAGING_URL="https://dev.azure.com/$(organization)/$(System.TeamProject)/_apis/build/status/$(System.DefinitionId)?branchName=$(UpdateBuildVersionTask.PreviousPrefix)/$(Build.BuildNumber)&stageName=DeployPackage"
-        STAGING_RESULT=$`curl --silent $STAGING_URL`
-        echo "URL: $STAGING_URL" 
-        echo "RESULT: $STAGING_RESULT"
-        SUCCEEDED=$`echo $STAGING_RESULT | grep -P 'succeeded' -o | head -n 1`
-        if [[ "$STAGING_RESULT" =~ "succeeded" ]];
-        then
-            echo "$PREVIOUS_PREFIX branch is ok!"
-        else
-            echo "$PREVIOUS_PREFIX branch is not ok!"
-            exit 1
-        fi
+        bash $(Build.Repository.LocalPath)/00-devops/scripts/verify_staging_status.bash \
+          --org=$(organization) \
+          --team=$(System.TeamProject) \
+          --definition_id=$(System.DefinitionId) \
+          --previous_prefix=$(UpdateBuildVersionTask.PreviousPrefix) \
+          --stage=DeployStaging \
+          --build_number=$(Build.BuildNumber)
       condition: contains(variables['Build.SourceBranch'], '/tags/')
       displayName: Break if release/hotfix branch is not passing
       name: BreakIsReleaseOrHotfixIsNotPassing
@@ -71,31 +60,12 @@ stages:
     dependsOn: 
     - UpdateBuildVersion    
     condition: succeeded()
-    workspace:
-      clean: all
     steps:
     - script: |
-        mkdir artifact
-        ls $(Build.Repository.LocalPath)
-        cp -r $(Build.Repository.LocalPath)/* $(System.DefaultWorkingDirectory)/artifact
-        echo "### reading env files.."
-        find "$(System.DefaultWorkingDirectory)/artifact" -name "*.env" -print0 | while read -d $'\0' file
-        do
-            echo "# $file"
-            if [[ $file == *"00-jobs"* ]]; then
-              continue
-            fi
-            IFS=$'\n'
-            for line in $(cat $file)
-            do
-                var_name=$(echo "$line" | cut -d "=" -f 1)
-                echo ">> line: $line"
-                echo ">>> var_name: $var_name"
-                sed -i~ "/^$var_name=/s/=.*/=#{$var_name}#/" $file
-            done
-        done
-        rm -rf $(System.DefaultWorkingDirectory)/artifact/artifact
-        find $(System.DefaultWorkingDirectory)/artifact -name "*.env~" -delete
+        # output in $work_dir/artifact
+        bash $(Build.Repository.LocalPath)/00-devops/scripts/build.bash \
+          local_path="$(Build.Repository.LocalPath)" \
+          work_dir="$(System.DefaultWorkingDirectory)"
       displayName: Build Application
     - task: PublishPipelineArtifact@1
       displayName: Store Neutral Application Artifact
@@ -147,6 +117,7 @@ stages:
         sources: |
           **/*.env
           **/.env
+          **/*.job.json
     - task: PublishPipelineArtifact@1
       displayName: Store Application Artifact
       inputs:
@@ -161,11 +132,55 @@ stages:
       clean: all
     condition: and(succeeded(), eq(variables['execute_test'], 'true'))
     steps:
-    - script: | 
-        echo "execute unit tests"
+    - bash: | 
+        # expected reports result.opencover.xml
+        bash $(Build.Repository.LocalPath)/00-devops/scripts/unit_tests.bash \
+          local_path="$(Build.Repository.LocalPath)" \
+          work_dir="$(System.DefaultWorkingDirectory)" \
+          pipeline_workspace="$(Pipeline.Workspace)"
       displayName: Running Unit Tests
       name: UnitTestsTask
 
+  - job: QualityAnalysis
+    dependsOn: 
+    - UpdateBuildVersion
+    - Build
+    - UnitTests
+    condition: succeeded()
+    variables:
+      SonarMainWhenTag: $[ dependencies.UpdateBuildVersion.outputs['UpdateBuildVersion.SonarMainWhenTag'] ]
+      OpencoverSonar: $[ dependencies.UnitTests.outputs['UnitTestsTask.OpencoverSonar'] ]
+    steps:
+    - task: SonarCloudPrepare@1
+      displayName: Start Sonarqube Analysis
+      inputs:
+        SonarCloud: '$(sonarqube_account)'
+        organization: '$(sonarcloud_organization)'
+        projectKey: '$(sonarqube_project)'
+        projectName: '$(main_project_name)'
+        scannerMode: 'CLI'
+        configMode: manual
+        cliSources: $(Build.Repository.LocalPath)
+        extraProperties: |
+          sonar.sourceEncoding=UTF-8
+          sonar.scm.forceReloadAll=true
+          sonar.python.version=3.9
+          $(OpencoverSonar)
+          $(SonarMainWhenTag)
+    - bash: |
+        pip install -r $(Build.Repository.LocalPath)/00-framework/requirements.txt
+      displayName: Running Build For Analysis
+    - task: SonarCloudAnalyze@1
+      displayName: Finish Sonarqube Analysis
+    - task: SonarCloudPublish@1
+      displayName: Publish Sonarqube Analysis
+      inputs:
+        pollingTimeoutSec: '300'
+    - task: sonarCloud-buildbreaker@2
+      inputs:
+        SonarCloud: '$(sonarqube_account)'
+        organization: '$(sonarqube_organization)'
+  
 - stage: DeployStaging
   dependsOn: BuildApp
   # remover not da condition abaixo, apenas pra teste

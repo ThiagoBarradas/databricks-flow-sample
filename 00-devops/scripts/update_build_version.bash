@@ -41,7 +41,7 @@ then
   echo "Generate Release Version"
   echo "Version: $branch_name"
   echo "##vso[build.updatebuildnumber]$branch_name"
-  echo "##vso[task.setvariable variable=SonarMasterWhenTag;isOutput=true]sonar.branch.name=main"
+  echo "##vso[task.setvariable variable=SonarMainWhenTag;isOutput=true]sonar.branch.name=main"
   echo "##vso[task.setvariable variable=PureVersion;isOutput=true]$branch_name"
 else
   echo "Generate Development Version"
