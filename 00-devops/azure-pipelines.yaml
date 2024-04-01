@@ -130,8 +130,6 @@ stages:
     dependsOn: 
     - UpdateBuildVersion
     - Build
-    - ArtifactForStaging
-    - ArtifactForProduction
     condition: and(succeeded(),  eq(variables['execute_unit_tests'], 'true'))
     steps:
     - bash: | 
