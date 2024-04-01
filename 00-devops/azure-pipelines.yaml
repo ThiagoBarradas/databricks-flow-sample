@@ -156,8 +156,8 @@ stages:
       inputs:
         SonarCloud: '$(sonarcloud_account)'
         organization: '$(sonarcloud_organization)'
-        projectKey: '$(sonarcloud_project)'
-        projectName: '$(main_project_name)'
+        cliProjectKey: '$(sonarcloud_project)'
+        cliProjectName: '$(project_name)'
         scannerMode: 'CLI'
         configMode: manual
         cliSources: $(Build.Repository.LocalPath)
