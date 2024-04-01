@@ -156,6 +156,8 @@ stages:
       inputs:
         SonarCloud: '$(sonarcloud_account)'
         organization: '$(sonarcloud_organization)'
+        projectKey: '$(sonarcloud_project)'
+        projectName: '$(project_name)'
         cliProjectKey: '$(sonarcloud_project)'
         cliProjectName: '$(project_name)'
         scannerMode: 'CLI'
@@ -180,6 +182,7 @@ stages:
       inputs:
         SonarCloud: '$(sonarcloud_account)'
         organization: '$(sonarcloud_organization)'
+
   
 - stage: DeployStaging
   dependsOn: BuildApp
