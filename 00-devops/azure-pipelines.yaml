@@ -63,7 +63,7 @@ stages:
     - UpdateBuildVersion    
     condition: succeeded()
     steps:
-    - script: |
+    - bash: |
         # output in $work_dir/artifact
         bash $(Build.Repository.LocalPath)/00-devops/scripts/build.bash \
           local_path="$(Build.Repository.LocalPath)" \
@@ -194,6 +194,10 @@ stages:
   - template: variables.staging.yaml
   - name: IsHotfix
     value: $[ stageDependencies.BuildApp.CheckVersion.outputs['CheckVersionTask.IsHotfix'] ]
+  - name: ArtifactPath
+    value: '$(System.DefaultWorkingDirectory)/$(project_name)Staging'
+  - name: ArtifactName
+    value: '$(project_name)Staging'
   jobs:
   - deployment: DeployDatabricksStaging
     environment: 'DatabricksStaging'
@@ -205,47 +209,40 @@ stages:
               echo "IsHotfix: $(IsHotfix)"
               echo "##vso[task.setvariable variable=IsHotfix;isOutput=true]$(IsHotfix)"
             displayName: Printing if is Hotfix 
-          - script: | 
+          - bash: | 
               echo "notification"
               echo "BuildUrl: $(System.CollectionUri)$(System.TeamProject)/_build/results?buildId=$(Build.BuildId)"
               echo "IsHotfix: $(IsHotfix)"
             displayName: 'Deploy Notification'
           - task: DownloadPipelineArtifact@2
-            displayName: Get Staging Artifact
+            displayName: Get Artifact
             inputs:
-              artifact: $(project_name)Staging
-              downloadPath: '$(System.DefaultWorkingDirectory)/$(project_name)Staging'
+              artifact: '$(ArtifactName)'
+              downloadPath: '$(ArtifactPath)'
           - task: UsePythonVersion@0
             displayName: Config Python
             inputs:
               versionSpec: '3.10'
               addToPath: true
               architecture: 'x64'
-          - script: |
-              curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
-              pip install wheel
-              > ~/.databrickscfg
-              echo "[workspace]" >> ~/.databrickscfg
-              echo "host          = $(DATABRICKS_HOST)" >> ~/.databrickscfg
-              echo "client_id     = $(DATABRICKS_CLIENT_ID)" >> ~/.databrickscfg
-              echo "client_secret = $(DATABRICKS_CLIENT_SECRET)" >> ~/.databrickscfg
-              echo "" >> ~/.databrickscfg
-              echo "[jobs]" >> ~/.databrickscfg
-              echo "host          = $(DATABRICKS_HOST)" >> ~/.databrickscfg
-              echo "client_id     = $(DATABRICKS_CLIENT_ID)" >> ~/.databrickscfg
-              echo "client_secret = $(DATABRICKS_CLIENT_SECRET)" >> ~/.databrickscfg
-              echo "account_id    = $(DATABRICKS_ACCOUNT_ID)" >> ~/.databrickscfg
-              cat ~/.databrickscfg
-              databricks auth profiles
+          - bash: |
+                bash $(ArtifactPath)/00-devops/scripts/deploy_prepare.bash \
+                  --databricks_host="$(DATABRICKS_HOST)" \
+                  --databricks_client_id="$(DATABRICKS_CLIENT_ID)" \
+                  --databricks_client_secret="$(DATABRICKS_CLIENT_SECRET)" \
+                  --databricks_account_id="$(DATABRICKS_ACCOUNT_ID)" \
+                  --profile_workspace=workspace \
+                  --profile_jobs=jobs 
             displayName: Config Databricks CLI
-          - script: |
-              rm -rf $(Build.ArtifactStagingDirectory)/$(project_name).$(Build.BuildId)/.git
-              databricks workspace delete $(DATABRICKS_WORKSPACE_PATH) --recursive --profile=workspace
-              databricks workspace import-dir $(System.DefaultWorkingDirectory)/$(project_name)Staging $(DATABRICKS_WORKSPACE_PATH) --profile=workspace
+          - bash: |
+              bash $(ArtifactPath)/00-devops/scripts/deploy_workspace.bash \
+                --workspace_path="$(DATABRICKS_WORKSPACE_PATH)" \
+                --import_dir="$(ArtifactPath)" \
+                --profile=workspace
             displayName: Update Workspace Files 
-          - script: |
-              bash $(System.DefaultWorkingDirectory)/$(project_name)Staging/00-devops/scripts/deploy_jobs.bash \
+          - bash: |
+              bash $(ArtifactPath)/00-devops/scripts/deploy_jobs.bash \
                 --profile=jobs \
                 --job_prefix=$(DATABRICKS_ENVIRONMENT_LOWER) \
-                --job_dir=$(System.DefaultWorkingDirectory)/$(project_name)Staging/05-jobs
+                --job_dir="$(ArtifactPath)/05-jobs"
             displayName: Update Jobs
