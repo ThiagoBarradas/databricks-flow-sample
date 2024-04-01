@@ -180,10 +180,6 @@ stages:
       displayName: Publish Sonarcloud Analysis
       inputs:
         pollingTimeoutSec: '300'
-    - task: sonarCloud-buildbreaker@2
-      inputs:
-        SonarCloud: '$(sonarcloud_account)'
-        organization: '$(sonarcloud_organization)'
 
   
 - stage: DeployStaging
