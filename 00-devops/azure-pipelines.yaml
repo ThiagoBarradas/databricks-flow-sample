@@ -178,6 +178,7 @@ stages:
       displayName: Finish Sonarcloud Analysis
     - task: SonarCloudPublish@1
       displayName: Publish Sonarcloud Analysis
+      continueOnError: true
       inputs:
         pollingTimeoutSec: '300'
 
