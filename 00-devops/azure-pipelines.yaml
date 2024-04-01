@@ -153,8 +153,6 @@ stages:
 
   - job: QualityAnalysis
     dependsOn: 
-    - UpdateBuildVersion
-    - Build
     - UnitTests
     condition: and(succeeded(), eq(variables['execute_quality_analysis'], 'true'))
     variables:
