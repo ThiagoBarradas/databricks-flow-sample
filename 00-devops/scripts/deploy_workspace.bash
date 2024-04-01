@@ -18,11 +18,21 @@ echo "import_dir=$import_dir"           # $(System.DefaultWorkingDirectory)/$(pr
 echo "profile=$profile"                 # workspace
 echo ""
 
-rm -rf ${import_dir}/.git
+mkdir temp
+mv "${import_dir}/05-jobs/*" temp
+rm -rf "${import_dir}/05-jobs"
+rm -rf "${import_dir}/.git"
+rm -rf "${import_dir}/00-devops"
+rm -rf "${import_dir}/README.md"
+rm -rf "${import_dir}/.gitignore"
 
 echo "# Cleaning up workspace..."
 databricks workspace delete $workspace_path --recursive --profile=$profile
 echo "# Importing new files to workspace..."
 databricks workspace import-dir $import_dir $workspace_path --profile=$profile
+
+mkdir ${import_dir}/05-jobs
+mv temp/* "${import_dir}/05-jobs"
+rm -rf temp
 
 echo "# Deploy finished!"
