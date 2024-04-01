@@ -132,15 +132,7 @@ stages:
     - Build
     - ArtifactForStaging
     - ArtifactForProduction
-    condition: | 
-      and
-      (
-        in(dependencies.UpdateBuildVersion.result, 'Succeeded'),
-        in(dependencies.Build.result, 'Succeeded'),
-        in(dependencies.ArtifactForStaging.result, 'Succeeded', 'Skipped'),
-        in(dependencies.ArtifactForProduction.result, 'Succeeded', 'Skipped'),
-        eq(variables['execute_unit_tests'], 'true')
-      )
+    condition: and(succeeded(),  eq(variables['execute_unit_tests'], 'true'))
     steps:
     - bash: | 
         # expected reports result.opencover.xml
