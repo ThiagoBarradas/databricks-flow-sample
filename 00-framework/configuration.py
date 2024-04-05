@@ -21,13 +21,7 @@ class Configuration:
 
     def get_secret(self, key):
         """Get secret from vault if configured or from os env var"""
-        try:
-            if (self.utils is not None):
-                return self.utils.secrets.get(scope=self.vault, key=key)
-            else:
-                return self.get_env_var(key)
-        except:
-            return ""
+        return self.utils.secrets.get(scope=self.vault, key=key)
     
     def get_env_var(self, key):
         """Get env var from os"""
