@@ -1,4 +1,4 @@
-import unittest, xmlrunner, sys
+import unittest, sys
 
 from data_framework import DataFramework
 from tests.mocks.dbutils_mock import DbutilsMock

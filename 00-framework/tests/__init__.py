@@ -1,4 +1,4 @@
-import sys, os, unittest, xmlrunner
+import sys, os, unittest
 
 print("Init tests...")
 

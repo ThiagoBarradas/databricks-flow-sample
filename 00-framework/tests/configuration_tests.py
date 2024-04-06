@@ -1,4 +1,4 @@
-import unittest, xmlrunner, sys
+import unittest, sys
 
 from tests.mocks.dbutils_mock import DbutilsMock
 from configuration import Configuration
