@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="unittest.loader._FailedTest-20240406035722" tests="1" file="unittest/loader.py" time="0.004" timestamp="2024-04-06T03:57:22" failures="0" errors="1" skipped="0">
+	<testcase classname="unittest.loader._FailedTest" name="tests" time="0.004" timestamp="2024-04-06T03:57:22" file="/usr/lib/python3.11/unittest/loader.py" line="33">
+		<error type="ImportError" message="Failed to import test module: tests
+Traceback (most recent call last):
+  File &quot;/usr/lib/python3.11/unittest/loader.py&quot;, line 440, in _find_test_path
+    package = self._get_module_from_name(name)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File &quot;/usr/lib/python3.11/unittest/loader.py&quot;, line 350, in _get_module_from_name
+    __import__(name)
+  File &quot;/Workspace/Repos/development/databricks-flow-sample - feature-receita_rederal/00-framework/tests/__init__.py&quot;, line 3, in &lt;module&gt;
+    sys.path.append('../../00-framework')
+    ^^^
+NameError: name 'sys' is not defined
+"><![CDATA[ImportError: Failed to import test module: tests
+Traceback (most recent call last):
+  File "/usr/lib/python3.11/unittest/loader.py", line 440, in _find_test_path
+    package = self._get_module_from_name(name)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/unittest/loader.py", line 350, in _get_module_from_name
+    __import__(name)
+  File "/Workspace/Repos/development/databricks-flow-sample - feature-receita_rederal/00-framework/tests/__init__.py", line 3, in <module>
+    sys.path.append('../../00-framework')
+    ^^^
+NameError: name 'sys' is not defined
+
+]]></error>
+	</testcase>
+</testsuite>

@@ -1,8 +1,4 @@
 import unittest, xmlrunner, sys
-sys.path.append('../../00-framework')
-
-from setup_framework import SetupFramework
-setup_framework = SetupFramework(None)
 
 from data_framework import DataFramework
 from tests.mocks.dbutils_mock import DbutilsMock

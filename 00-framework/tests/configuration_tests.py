@@ -1,15 +1,11 @@
 import unittest, xmlrunner, sys
-sys.path.append('../../00-framework')
-
-from setup_framework import SetupFramework
-setup_framework = SetupFramework(None)
 
 from tests.mocks.dbutils_mock import DbutilsMock
 from configuration import Configuration
 
 class ConfigurationTests(unittest.TestCase):
     def test_get_secret(self):
-		    # arrange
+		# arrange
         vault = "databricks-dev-vault"
         secret_values = {}
         secret_values["secret-1"] = "123"

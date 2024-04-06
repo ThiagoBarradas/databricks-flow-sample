@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="tests.data_framework_tests.DataFrameworkTests-20240406035606" tests="1" file="tests/data_framework_tests.py" time="0.453" timestamp="2024-04-06T03:56:08" failures="0" errors="0" skipped="0">
+	<testcase classname="tests.data_framework_tests.DataFrameworkTests" name="test_new_framework" time="0.453" timestamp="2024-04-06T03:56:08" file="tests/data_framework_tests.py" line="12">
+		<system-out><![CDATA[[app_dir] 
+> /Workspace/Repos/development/databricks-flow-sample - feature-receita_rederal/
+[env_file] 
+> /Workspace/Repos/development/databricks-flow-sample - feature-receita_rederal/.env
+[env_file] 
+> /Workspace/Repos/development/databricks-flow-sample - feature-receita_rederal/01-raw/receita_federal/.env
+[env_file] 
+> /Workspace/Repos/development/databricks-flow-sample - feature-receita_rederal/02-bronze/receita_federal/.env
+[env_file] 
+> /Workspace/Repos/development/databricks-flow-sample - feature-receita_rederal/00-framework/global.env
+[environment] 
+> Development
+]]></system-out>
+	</testcase>
+</testsuite>
