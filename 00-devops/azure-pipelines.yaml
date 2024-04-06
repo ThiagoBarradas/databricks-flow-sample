@@ -85,7 +85,6 @@ stages:
     - Build
     condition: |
       or(
-        # remover not da condition abaixo, apenas pra teste
         and(succeeded(), not(eq(variables['Build.SourceBranchName'], 'develop'))),
         and(succeeded(), contains(variables['Build.SourceBranch'], '/tags/'))
       )
