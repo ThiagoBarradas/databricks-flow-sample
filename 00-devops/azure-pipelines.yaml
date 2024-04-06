@@ -130,12 +130,6 @@ stages:
       inputs:
         path: $(Build.Repository.LocalPath)/reports
         artifact: UnitTestResults
-    - task: PublishCodeCoverageResults@2
-      displayName: Publish Code Coverage 
-      inputs:
-        summaryFileLocation: '$(Build.Repository.LocalPath)/reports/coverage.xml'
-        pathToSources: '$(Build.Repository.LocalPath)/reports/' 
-        failIfCoverageEmpty: true
     - task: PublishTestResults@2
       displayName: Publish Test Result
       inputs:
