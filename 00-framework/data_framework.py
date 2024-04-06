@@ -9,9 +9,7 @@ from configuration import Configuration
 class DataFramework:
     def __init__(self, dbutils, spark):
         """Constructor Method"""
-        print("Starting framework...")
         self.configuration = Configuration(dbutils);
         self.data_quality = DataQuality(self.configuration)
         self.data_access = DataAccess(dbutils, spark, self.configuration)
-        print("Framework loaded!")
         

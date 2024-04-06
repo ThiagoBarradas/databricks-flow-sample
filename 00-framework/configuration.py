@@ -17,7 +17,7 @@ class Configuration:
         self.local_path_protocol = self.get_env_var("DATABRICKS_LOCAL_PATH_PROTOCOL")
         self.catalog = self.get_env_var("DATABRICKS_CATALOG")
 
-        print("Environment: " + self.environment)
+        print("[environment] \n> " + self.environment)
 
     def get_secret(self, key):
         """Get secret from vault if configured or from os env var"""
@@ -33,7 +33,7 @@ class Configuration:
     def set_app_dir(self):
         """Set application base dir"""
         self.app_dir = str(os.path.abspath(__file__)).replace("00-framework/configuration.py", "");
-        print("App Dir: " + self.app_dir)
+        print("[app_dir] \n> " + self.app_dir)
 
     def get_env_files(self):
         """Get env file path"""
@@ -46,4 +46,4 @@ class Configuration:
 
         for file in files:
             load_dotenv(file)
-            print("Env File: " + file)
+            print("[env_file] \n> " + file)

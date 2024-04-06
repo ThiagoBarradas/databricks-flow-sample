@@ -1,6 +1,6 @@
 # Databricks notebook source
 # DBTITLE 1,Setup
-# MAGIC %run ../../00-framework/setup_framework
+# MAGIC %run ../../00-framework/setup_notebook
 
 # COMMAND ----------
 

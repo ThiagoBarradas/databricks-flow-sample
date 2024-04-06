@@ -176,11 +176,22 @@
                     "availability": "SPOT_WITH_FALLBACK_AZURE",
                     "spot_bid_max_price": -1
                 },
+                "custom_tags": {
+                    "cost-center": "0000021",
+                    "app": "databricks",
+                    "env": "#{DATABRICKS_ENVIRONMENT_LOWER}#",
+                    "project": "databricks-flow-sample",
+                    "github-org": "ThiagoBarradas",
+                    "github-repo": "databricks-flow-sample",
+                    "owner": "ThiagoBarradas",
+                    "support": "ThiagoBarradas"
+                },
                 "node_type_id": "#{DATABRICKS_JOB_RECEITA_FEDERAL_JOB_CLUSTER_NODE_TYPE}#",
                 "driver_node_type_id": "#{DATABRICKS_JOB_RECEITA_FEDERAL_JOB_CLUSTER_DRIVER_TYPE}#",
                 "spark_env_vars": {
                     "PYSPARK_PYTHON": "/databricks/python3/bin/python3",
-                    "ENVIRONMENT_CLUSTER": "#{DATABRICKS_ENVIRONMENT_LOWER}#"
+                    "ENVIRONMENT_CLUSTER": "#{DATABRICKS_ENVIRONMENT_LOWER}#",
+                    "DATABRICKS_WORKSPACE_PATH": "#{DATABRICKS_WORKSPACE_PATH}#"
                 },
                 "enable_elastic_disk": true,
                 "data_security_mode": "SINGLE_USER",
