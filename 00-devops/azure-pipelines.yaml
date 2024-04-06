@@ -77,10 +77,10 @@ stages:
 
   - job: Artifact
     variables:
-      ${{ if not(eq(variables['Build.SourceBranchName'], 'develop')) }}:
-        - template: variables.staging.yaml
-      ${{ if contains(variables['Build.SourceBranch'], '/tags/') }}:
-        - template: variables.production.yaml
+    - ${{ if not(eq(variables['Build.SourceBranchName'], 'develop')) }}:
+      - template: variables.staging.yaml
+    - ${{ if contains(variables['Build.SourceBranch'], '/tags/') }}:
+      - template: variables.production.yaml
     dependsOn: 
     - Build
     condition: |
