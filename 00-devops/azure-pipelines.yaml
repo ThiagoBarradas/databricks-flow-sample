@@ -148,7 +148,6 @@ stages:
         cd $(Build.Repository.LocalPath)
         echo "Executing unit tests"
         nose2 -v -c=$(Build.Repository.LocalPath)/00-devops/unit-test-config/.unittest.cfg
-        mkdir $(Pipeline.Workspace)/reports
         echo "##vso[task.setvariable variable=CoverageSonar;isOutput=true]sonar.python.coverage.reportPaths=$(Pipeline.Workspace)/coverage.xml"
         #bash $(Build.Repository.LocalPath)/00-devops/scripts/unit_tests.bash \
         #  local_path="$(Build.Repository.LocalPath)" \
@@ -159,19 +158,19 @@ stages:
     - task: PublishPipelineArtifact@1
       displayName: Store Test Result
       inputs:
-        path: $(Pipeline.Workspace)/reports
+        path: $(Build.Repository.LocalPath)/reports
         artifact: UnitTestResults
     - task: PublishCodeCoverageResults@2
       displayName: Publish Code Coverage 
       inputs:
-        summaryFileLocation: '$(Pipeline.Workspace)/reports/coverage.xml'
-        pathToSources: '$(Pipeline.Workspace)/reports/' 
+        summaryFileLocation: '$(Build.Repository.LocalPath)/reports/coverage.xml'
+        pathToSources: '$(Build.Repository.LocalPath)/reports/' 
         failIfCoverageEmpty: true
     - task: PublishTestResults@2
       displayName: Publish Test Result
       inputs:
-        searchFolder: '$(Pipeline.Workspace)/reports/'
-        testResultsFiles: '$(Pipeline.Workspace)/reports/nose2-report.xml'
+        searchFolder: '$(Build.Repository.LocalPath)/reports/'
+        testResultsFiles: '$(Build.Repository.LocalPath)/reports/nose2-report.xml'
         testRunTitle: 'Collecting Test Results'
 
   - job: QualityAnalysis
