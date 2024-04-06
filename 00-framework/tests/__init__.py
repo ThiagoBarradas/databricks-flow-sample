@@ -1,8 +1,12 @@
-import sys
+import sys, os, unittest, xmlrunner
 
 print("Init tests...")
 
-sys.path.append('../../00-framework')
+workspace_path = os.getenv("TEST_WORKSPACE_PATH")
+sys.path.append(workspace_path + "/00-framework")
 
 from setup_framework import SetupFramework
 setup_framework = SetupFramework(None)
+
+
+

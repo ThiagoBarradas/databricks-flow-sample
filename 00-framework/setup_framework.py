@@ -8,6 +8,11 @@ class SetupFramework:
 
         if (dir is None):
             dir = os.getenv("DATABRICKS_WORKSPACE_PATH")
+            dir_test = os.getenv("TEST_WORKSPACE_PATH")
+
+            if (dir_test is not None):
+                dir = dir_test
+
             if (dir is None):
                 dev_prefix = "/Workspace/Repos/development/"
                 other_prefix = "/Workspace/"

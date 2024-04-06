@@ -132,14 +132,50 @@ stages:
     - Build
     condition: and(succeeded(),  eq(variables['execute_unit_tests'], 'true'))
     steps:
+    - task: UsePythonVersion@0
+      displayName: Config Python
+      inputs:
+        versionSpec: '3.10'
+        addToPath: true
+        architecture: 'x64'
     - bash: | 
-        # expected reports result.opencover.xml
-        bash $(Build.Repository.LocalPath)/00-devops/scripts/unit_tests.bash \
-          local_path="$(Build.Repository.LocalPath)" \
-          work_dir="$(System.DefaultWorkingDirectory)" \
-          pipeline_workspace="$(Pipeline.Workspace)"
+        echo "Installing unit tests tools"
+        pip install unittest
+        pip install nose2
+        pip install nose2[coverage_plugin]
+        pip install nose2-html-report
+        export TEST_WORKSPACE_PATH=$(Build.Repository.LocalPath)
+        cd $(Build.Repository.LocalPath)
+        echo "Executing unit tests"
+        nose2 -v -c=$(Build.Repository.LocalPath)/00-devops/unit-test-config/.unittest.cfg
+        mkdir $(Pipeline.Workspace)/reports
+        mv $(Build.Repository.LocalPath)/*.xml $(Pipeline.Workspace)/reports
+        mv $(Build.Repository.LocalPath)/*.html $(Pipeline.Workspace)/reports
+        echo "##vso[task.setvariable variable=OpencoverSonar;isOutput=true]sonar.python.coverage.reportPaths=$(Pipeline.Workspace)/coverage.xml"
+        #bash $(Build.Repository.LocalPath)/00-devops/scripts/unit_tests.bash \
+        #  local_path="$(Build.Repository.LocalPath)" \
+        #  work_dir="$(System.DefaultWorkingDirectory)" \
+        #  pipeline_workspace="$(Pipeline.Workspace)"
       displayName: Running Unit Tests
       name: UnitTestsTask
+    - task: PublishPipelineArtifact@1
+      displayName: Store Test Result
+      inputs:
+        path: $(Pipeline.Workspace)/reports/nose2-report.xml
+        artifact: UnitTestResults
+    - task: PublishCodeCoverageResults@1
+      displayName: Publish Code Coverage 
+      inputs:
+        codeCoverageTool: 'Cobertura'
+        summaryFileLocation: '$(Pipeline.Workspace)/reports/coverage.xml'
+        pathToSources: '$(Pipeline.Workspace)/reports/' 
+        failIfCoverageEmpty: true
+    - task: PublishTestResults@2
+      displayName: Publish Test Result
+      inputs:
+        searchFolder: '$(Pipeline.Workspace)/reports/'
+        testResultsFiles: '$(Pipeline.Workspace)/reports/nose2-report.xml'
+        testRunTitle: 'Collecting Test Results'
 
   - job: QualityAnalysis
     dependsOn: 

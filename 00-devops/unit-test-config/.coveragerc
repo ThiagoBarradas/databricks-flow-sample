@@ -1,0 +1,8 @@
+[run]
+branch = True
+[xml]
+output = coverage.xml
+[report]
+show_missing = True
+omit=
+    00-framework/tests/*

@@ -14,9 +14,17 @@ done
 
 echo "# Vars"
 echo "local_path=$local_path"                      # $(Build.Repository.LocalPath)
-echo "work_dir=$work_dir"                          # $(System.DefaultWorkingDirectory)
-echo "pipeline_workspace=$pipeline_workspace"      # $(Pipeline.Workspace)
 echo ""
 
-echo "TODO: execute unit tests"
-#echo "##vso[task.setvariable variable=OpencoverSonar;isOutput=true]sonar.cs.opencover.reportsPaths=${pipeline_workspace}/result.opencover.xml"
+echo "Installing unit tests tools"
+pip install unittest
+pip install nose2
+pip install nose2[coverage_plugin]
+pip install nose2-html-report
+export TEST_WORKSPACE_PATH=$(Build.Repository.LocalPath)
+cd $(Build.Repository.LocalPath)
+
+echo "Executing unit tests"
+nose2 -v -c=$(Build.Repository.LocalPath)/00-devops/unit-test-config/.unittest.cfg
+
+echo "##vso[task.setvariable variable=OpencoverSonar;isOutput=true]sonar.python.coverage.reportPaths=${pipeline_workspace}/coverage.xml"
