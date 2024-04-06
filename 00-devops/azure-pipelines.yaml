@@ -202,7 +202,6 @@ stages:
 
 - stage: DeployStaging
   dependsOn: BuildApp
-  # remover not da condition abaixo, apenas pra teste
   condition: |
     and
     (
