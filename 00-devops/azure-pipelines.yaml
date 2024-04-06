@@ -77,12 +77,10 @@ stages:
 
   - job: Artifact
     variables:
-    # remover not da condition abaixo, apenas pra teste
     - ${{ if and(succeeded(), not(eq(variables['Build.SourceBranchName'], 'develop'))) }}:
-    - template: variables.staging.yaml
+      - template: variables.staging.yaml
     - ${{ if and(succeeded(), contains(variables['Build.SourceBranch'], '/tags/')) }}:
-    - template: variables.production.yaml
-    
+      - template: variables.production.yaml
     dependsOn: 
     - Build
     condition: |
