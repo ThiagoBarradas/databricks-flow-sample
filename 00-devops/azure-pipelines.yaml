@@ -75,38 +75,22 @@ stages:
         path: $(System.DefaultWorkingDirectory)/artifact
         artifact: $(project_name)Neutral
 
-  - job: ArtifactForStaging
+  - job: Artifact
     variables:
-    - template: variables.staging.yaml
-    dependsOn: 
-    - Build
     # remover not da condition abaixo, apenas pra teste
-    condition: and(succeeded(), not(eq(variables['Build.SourceBranchName'], 'develop')))
-    steps:
-    - task: DownloadPipelineArtifact@2
-      displayName: Get Neutral Artifact
-      inputs:
-        artifact: $(project_name)Neutral
-        downloadPath: '$(System.DefaultWorkingDirectory)/$(project_name)Neutral'
-    - task: replacetokens@6
-      inputs:
-        root: '$(System.DefaultWorkingDirectory)/$(project_name)Neutral'
-        sources: |
-          **/*.env
-          **/.env
-          **/*.job.json
-    - task: PublishPipelineArtifact@1
-      displayName: Store Application Artifact
-      inputs:
-        path: $(System.DefaultWorkingDirectory)/$(project_name)Neutral
-        artifact: $(project_name)Staging
-
-  - job: ArtifactForProduction
-    variables:
+    - ${{ if and(succeeded(), not(eq(variables['Build.SourceBranchName'], 'develop'))) }}:
+    - template: variables.staging.yaml
+    - ${{ if and(succeeded(), contains(variables['Build.SourceBranch'], '/tags/')) }}:
     - template: variables.production.yaml
+    
     dependsOn: 
     - Build
-    condition: and(succeeded(), contains(variables['Build.SourceBranch'], '/tags/'))
+    condition: |
+      or(
+        # remover not da condition abaixo, apenas pra teste
+        and(succeeded(), not(eq(variables['Build.SourceBranchName'], 'develop'))),
+        and(succeeded(), contains(variables['Build.SourceBranch'], '/tags/'))
+      )
     steps:
     - task: DownloadPipelineArtifact@2
       displayName: Get Neutral Artifact
@@ -124,12 +108,13 @@ stages:
       displayName: Store Application Artifact
       inputs:
         path: $(System.DefaultWorkingDirectory)/$(project_name)Neutral
-        artifact: $(project_name)Production
-
+        artifact: $(project_name)
+ 
   - job: UnitTests
     dependsOn: 
     - UpdateBuildVersion
     - Build
+    - Artifact
     condition: and(succeeded(),  eq(variables['execute_unit_tests'], 'true'))
     steps:
     - task: UsePythonVersion@0
@@ -166,6 +151,7 @@ stages:
     dependsOn: 
     - UpdateBuildVersion
     - Build
+    - Artifact
     - UnitTests
     condition: and(succeeded(), eq(variables['execute_quality_analysis'], 'true'))
     variables:
@@ -216,7 +202,6 @@ stages:
       inputs:
         pollingTimeoutSec: '300'
 
-  
 - stage: DeployStaging
   dependsOn: BuildApp
   # remover not da condition abaixo, apenas pra teste
@@ -231,9 +216,9 @@ stages:
   - name: IsHotfix
     value: $[ stageDependencies.BuildApp.CheckVersion.outputs['CheckVersionTask.IsHotfix'] ]
   - name: ArtifactPath
-    value: '$(System.DefaultWorkingDirectory)/$(project_name)Staging'
+    value: '$(System.DefaultWorkingDirectory)/$(project_name)'
   - name: ArtifactName
-    value: '$(project_name)Staging'
+    value: '$(project_name)'
   jobs:
   - deployment: DeployDatabricksStaging
     environment: 'DatabricksStaging'
