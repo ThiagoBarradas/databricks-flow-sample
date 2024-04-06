@@ -1,5 +1,10 @@
 [run]
 branch = True
+omit = 
+    *tests*
+    *tests.py*
+    *mock.py*
+    
 [xml]
 output = coverage.xml
 [report]
