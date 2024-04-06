@@ -151,7 +151,7 @@ stages:
         mkdir $(Pipeline.Workspace)/reports
         mv $(Build.Repository.LocalPath)/*.xml $(Pipeline.Workspace)/reports
         mv $(Build.Repository.LocalPath)/*.html $(Pipeline.Workspace)/reports
-        echo "##vso[task.setvariable variable=OpencoverSonar;isOutput=true]sonar.python.coverage.reportPaths=$(Pipeline.Workspace)/coverage.xml"
+        echo "##vso[task.setvariable variable=CoverageSonar;isOutput=true]sonar.python.coverage.reportPaths=$(Pipeline.Workspace)/coverage.xml"
         #bash $(Build.Repository.LocalPath)/00-devops/scripts/unit_tests.bash \
         #  local_path="$(Build.Repository.LocalPath)" \
         #  work_dir="$(System.DefaultWorkingDirectory)" \
@@ -163,10 +163,9 @@ stages:
       inputs:
         path: $(Pipeline.Workspace)/reports/nose2-report.xml
         artifact: UnitTestResults
-    - task: PublishCodeCoverageResults@1
+    - task: PublishCodeCoverageResults@2
       displayName: Publish Code Coverage 
       inputs:
-        codeCoverageTool: 'Cobertura'
         summaryFileLocation: '$(Pipeline.Workspace)/reports/coverage.xml'
         pathToSources: '$(Pipeline.Workspace)/reports/' 
         failIfCoverageEmpty: true
@@ -185,8 +184,12 @@ stages:
     condition: and(succeeded(), eq(variables['execute_quality_analysis'], 'true'))
     variables:
       SonarMainWhenTag: $[ dependencies.UpdateBuildVersion.outputs['UpdateBuildVersion.SonarMainWhenTag'] ]
-      OpencoverSonar: $[ dependencies.UnitTests.outputs['UnitTestsTask.OpencoverSonar'] ]
+      CoverageSonar: $[ dependencies.UnitTests.outputs['UnitTestsTask.CoverageSonar'] ]
     steps:
+    - bash: |
+        mkdir coverage-reports
+        cp $(Pipeline.Workspace)/reports/coverage.xml coverage-reports
+      displayName: Prepare Coverga Files 
     - task: SonarCloudPrepare@1
       displayName: Start Sonarcloud Analysis
       inputs:
@@ -205,7 +208,7 @@ stages:
           sonar.python.version=3.9
           sonar.inclusions=**/*.py
           sonar.qualitygate.wait=true
-          $(OpencoverSonar)
+          $(CoverageSonar)
           $(SonarMainWhenTag)
     - bash: |
         pip install -r $(Build.Repository.LocalPath)/00-framework/requirements.txt
