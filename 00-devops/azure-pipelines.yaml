@@ -160,6 +160,7 @@ stages:
         searchFolder: '$(Build.Repository.LocalPath)/reports/'
         testResultsFiles: '$(Build.Repository.LocalPath)/reports/nose2-report.xml'
         testRunTitle: 'Collecting Test Results'
+        failTaskOnFailedTests: true
 
   - job: QualityAnalysis
     dependsOn: 
