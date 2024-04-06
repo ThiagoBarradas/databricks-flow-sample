@@ -191,10 +191,11 @@ stages:
       condition: eq(variables['execute_unit_tests'], 'true')
       inputs:
         artifact: UnitTestResults
-        downloadPath: '$(Pipeline.Workspace)/reports'
+        downloadPath: '$(Build.Repository.LocalPath)/reports'
     - bash: |
         mkdir coverage-reports
-        cp $(Pipeline.Workspace)/reports/coverage.xml coverage-reports
+        cp $(Build.Repository.LocalPath)/reports/coverage.xml coverage-reports
+        ls $(Build.Repository.LocalPath)/reports
       condition: eq(variables['execute_unit_tests'], 'true')
       displayName: Prepare Coverga Files 
     - task: SonarCloudPrepare@1
