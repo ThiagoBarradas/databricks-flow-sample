@@ -24,6 +24,7 @@ pip install nose2-html-report
 export TEST_WORKSPACE_PATH=$local_path
 cd $local_path
 echo "Executing unit tests"
+cp $local_path/00-devops/unit-test-config/.coveragerc .
 nose2 -v -c=$local_path/00-devops/unit-test-config/.unittest.cfg
 mkdir $local_path/reports
 mv $local_path/*.html $local_path/reports

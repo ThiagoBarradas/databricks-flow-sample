@@ -18,4 +18,4 @@ class ConfigurationTests(unittest.TestCase):
 
         # assert
         self.assertTrue(secret1 == "123")
-        self.assertTrue(empty == "wrong")
+        self.assertTrue(empty == "")
