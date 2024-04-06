@@ -201,6 +201,7 @@ stages:
           sonar.python.version=3.9
           sonar.inclusions=**/*.py
           sonar.qualitygate.wait=true
+          sonar.coverage.exclusions=**/*_tests.py, **/*_test.py, **/*_mock.py
           $(CoverageSonar)
           $(SonarMainWhenTag)
     - bash: |
