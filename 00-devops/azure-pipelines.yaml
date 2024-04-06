@@ -139,23 +139,8 @@ stages:
         addToPath: true
         architecture: 'x64'
     - bash: | 
-        echo "Installing unit tests tools"
-        pip install unittest
-        pip install nose2
-        pip install nose2[coverage_plugin]
-        pip install nose2-html-report
-        export TEST_WORKSPACE_PATH=$(Build.Repository.LocalPath)
-        cd $(Build.Repository.LocalPath)
-        echo "Executing unit tests"
-        nose2 -v -c=$(Build.Repository.LocalPath)/00-devops/unit-test-config/.unittest.cfg
-        mkdir $(Build.Repository.LocalPath)/reports
-        mv $(Build.Repository.LocalPath)/*.html $(Build.Repository.LocalPath)/reports
-        mv $(Build.Repository.LocalPath)/*.xml $(Build.Repository.LocalPath)/reports
-        echo "##vso[task.setvariable variable=CoverageSonar;isOutput=true]sonar.python.coverage.reportPaths=$(Build.Repository.LocalPath)/reports/coverage.xml"
-        #bash $(Build.Repository.LocalPath)/00-devops/scripts/unit_tests.bash \
-        #  local_path="$(Build.Repository.LocalPath)" \
-        #  work_dir="$(System.DefaultWorkingDirectory)" \
-        #  pipeline_workspace="$(Pipeline.Workspace)"
+        bash $(Build.Repository.LocalPath)/00-devops/scripts/unit_tests.bash \
+          local_path="$(Build.Repository.LocalPath)" 
       displayName: Running Unit Tests
       name: UnitTestsTask
     - task: PublishPipelineArtifact@1

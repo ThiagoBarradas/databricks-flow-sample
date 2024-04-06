@@ -5,4 +5,5 @@ output = coverage.xml
 [report]
 show_missing = True
 omit=
-    00-framework/tests/*
+    *_tests.py
+    *_mock.py
