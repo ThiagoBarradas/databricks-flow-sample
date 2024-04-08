@@ -95,6 +95,7 @@ stages:
         artifact: $(project_name)Neutral
         downloadPath: '$(System.DefaultWorkingDirectory)/$(project_name)Neutral'
     - task: replacetokens@6
+      displayName: Add Variables
       inputs:
         root: '$(System.DefaultWorkingDirectory)/$(project_name)Neutral'
         sources: |
