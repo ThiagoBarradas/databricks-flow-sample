@@ -3,7 +3,6 @@
     "description": "Job to execute receita_federal full pipeline",
     "format": "MULTI_TASK",
     "max_concurrent_runs": 1,
-    "edit_mode": "UIL_LOCKED",
     "run_as": {
         "service_principal_name": "#{DATABRICKS_CLIENT_ID}#"
     },
@@ -67,6 +66,7 @@
                 "notebook_path": "/#{DATABRICKS_ENVIRONMENT_LOWER}#/01-raw/receita_federal/raw.receita_federal_customers",
                 "source": "WORKSPACE"
             },
+            "run_if": "ALL_SUCCESS",
             "max_retries": 1,
             "min_retry_interval_millis": 900000,
             "retry_on_timeout": true,

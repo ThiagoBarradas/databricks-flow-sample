@@ -105,10 +105,30 @@ do
   else
 	  job_id=$(sed -n "/$job_name/p" remote_jobs_raw.txt | cut -d" " -f1)
     echo "# Updating $job_name ($job_id) from $file"
-	  jq "del(.run_as)" $file > "tmp" && mv "tmp" $file
-    jq '{"new_setting": .}' < $file > "tmp" && mv "tmp" $file
-	  jq ". += { \"job_id\": $job_id }" $file > "tmp" && mv "tmp" $file
-	  databricks jobs update --json="@$file" --profile=$profile
+
+    # check changes
+    temp_old=temp_old.json
+    temp_new=temp_new.json
+    rm -rf $temp_old
+    rm -rf $temp_new
+    databricks jobs get $job_id --profile=$profile >> $temp_old
+    jq "del(.run_as)" $file > "tmp" && mv "tmp" $temp_new 
+    jq "del(.name)" $temp_new > "tmp" && mv "tmp" $temp_new 
+    jq --sort-keys '{"settings": .}' < $temp_new > "tmp" && mv "tmp" $temp_new 
+    jq "del(.settings.name)" $temp_old > "tmp" && mv "tmp" $temp_old  
+    jq --sort-keys "{ settings: .settings }" $temp_old > "tmp" && mv "tmp" $temp_old 
+    changes=$(git diff --no-index $temp_old $temp_new)
+
+    # update
+    if [ -z "${VAR}" ]; then
+      echo "# Job has no changes! $job_name ($job_id) from $file
+    else
+      jq "del(.run_as)" $file > "tmp" && mv "tmp" $file
+      jq '{"new_setting": .}' < $file > "tmp" && mv "tmp" $file
+      jq ". += { \"job_id\": $job_id }" $file > "tmp" && mv "tmp" $file
+      databricks jobs update --json="@$file" --profile=$profile
+      echo "# Job updated! $job_name ($job_id) from $file
+    fi
   fi
 done
 
