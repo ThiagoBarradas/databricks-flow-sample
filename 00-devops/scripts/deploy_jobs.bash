@@ -126,6 +126,8 @@ do
     if [ -z "${changes}" ]; then
       echo "# Job has no changes! $job_name ($job_id) from $file"
     else
+      echo "Diff:"
+      echo "$changes"
       jq "del(.run_as)" $file > "tmp" && mv "tmp" $file
       jq '{"new_setting": .}' < $file > "tmp" && mv "tmp" $file
       jq ". += { \"job_id\": $job_id }" $file > "tmp" && mv "tmp" $file
