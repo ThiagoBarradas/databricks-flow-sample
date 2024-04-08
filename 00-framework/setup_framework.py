@@ -6,24 +6,24 @@ class SetupFramework:
         print("### Setup Framework")
         print()
 
-        if (dir is None):
-            dir = os.getenv("DATABRICKS_WORKSPACE_PATH")
-            dir_test = os.getenv("TEST_WORKSPACE_PATH")
+        dir_test = os.getenv("TEST_WORKSPACE_PATH")
+        dir = os.getenv("DATABRICKS_WORKSPACE_PATH")
 
-            if (dir_test is not None):
-                dir = dir_test
-
-            if (dir is None):
-                dev_prefix = "/Workspace/Repos/development/"
-                other_prefix = "/Workspace/"
-                dir = os.path.dirname(os.path.realpath('__file__'))
-                if (dir.startswith(dev_prefix)):
-                    split = dir.index('/', len(dev_prefix))
-                    dir = dir[0:split]
-                else:
-                    split = dir.index('/', len(other_prefix))
-                    dir = dir[0:split]
-                os.environ["DATABRICKS_WORKSPACE_PATH"] = dir;
+        if (dir_test is not None):
+            dir = dir_test
+        elif (dir is None or dir == ""):
+            dev_prefix = "/Workspace/Repos/development/"
+            other_prefix = "/Workspace/"
+            dir = os.path.dirname(os.path.realpath('__file__'))
+            if (dir.startswith(dev_prefix)):
+                split = dir.index('/', len(dev_prefix))
+                dir = dir[0:split]
+            else:
+                split = dir.index('/', len(other_prefix))
+                dir = dir[0:split]
+        
+        os.environ["DATABRICKS_WORKSPACE_PATH"] = dir;
+        
         self.dir = dir;
         self.install_dependencies()
         self.append_code()               
