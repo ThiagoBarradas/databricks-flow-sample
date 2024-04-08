@@ -256,4 +256,5 @@ stages:
                 --profile=jobs \
                 --job_prefix=$(DATABRICKS_ENVIRONMENT_LOWER) \
                 --job_dir="$(ArtifactPath)/05-jobs"
+                --version="$(Build.BuildNumber)"
             displayName: Update Jobs
