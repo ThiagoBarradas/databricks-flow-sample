@@ -1,5 +1,5 @@
 {
-    "name": "#{DATABRICKS_ENVIRONMENT_LOWER}#_full_receita_federal_job",
+    "name": "#{DATABRICKS_ENVIRONMENT_LOWER}#_full_v2_receita_federal_job",
     "description": "Job to execute receita_federal full pipeline",
     "format": "MULTI_TASK",
     "max_concurrent_runs": 1,
