@@ -41,6 +41,7 @@ for line in $(cat remote_jobs_raw.txt)
 do
   job_name=$(echo "$line" | cut -d" " -f2)
   if  [[ $job_name == $job_prefix* ]]; then
+    job_name=$(echo $job_name | sed -e 's/\[.*\]//g')
     echo "$job_name" >> remote_jobs.txt
   fi
 done
