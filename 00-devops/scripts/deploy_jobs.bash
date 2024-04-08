@@ -101,7 +101,6 @@ find "$job_dir" -name "*.job.json" -print0 | while read -d $'\0' file
 do
   job_name=$(jq -r '.name' $file)
   jq ".name |= . + \"_[$version]\"" $file > "tmp" && mv "tmp" $file 
-  jq ".parameters[.parameters.messages| length] |= . + { \"name\": \"version\", \"default\": \"$version\" }" $file > "tmp" && mv "tmp" $file 
 
   echo "Name with version:"
   echo $(jq ".name" $file) 
@@ -121,10 +120,8 @@ do
     databricks jobs get $job_id --profile=$profile >> $temp_old
     jq "del(.run_as)" $file > "tmp" && mv "tmp" $temp_new 
     jq "del(.name)" $temp_new > "tmp" && mv "tmp" $temp_new 
-    jq "del(.settings.parameters[] | select(.name == \"version\"))" $temp_new > "tmp" && mv "tmp" $temp_new 
     jq --sort-keys '{"settings": .}' < $temp_new > "tmp" && mv "tmp" $temp_new 
     jq "del(.settings.name)" $temp_old > "tmp" && mv "tmp" $temp_old  
-    jq "del(.settings.parameters[] | select(.name == \"version\"))" $temp_old > "tmp" && mv "tmp" $temp_old 
     jq --sort-keys "{ settings: .settings }" $temp_old > "tmp" && mv "tmp" $temp_old 
     changes=$(git diff --no-index $temp_old $temp_new)
 
@@ -135,7 +132,7 @@ do
       echo "Diff:"
       echo "$changes"
       jq "del(.run_as)" $file > "tmp" && mv "tmp" $file
-      jq '{"new_setting": .}' < $file > "tmp" && mv "tmp" $file
+      jq '{"new_settings": .}' < $file > "tmp" && mv "tmp" $file
       jq ". += { \"job_id\": $job_id }" $file > "tmp" && mv "tmp" $file
       cat $file
       databricks jobs update --json="@$file" --profile=$profile --debug
