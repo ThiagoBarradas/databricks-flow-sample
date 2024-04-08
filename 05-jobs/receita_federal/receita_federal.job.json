@@ -108,7 +108,7 @@
                     }
                 ]
             },
-            "job_cluster_key": "#{DATABRICKS_ENVIRONMENT_LOWER}#_full_receita_federal_cluster"
+            "job_cluster_key": "#{DATABRICKS_ENVIRONMENT_LOWER}#_full_v2_receita_federal_cluster"
         },
         {
             "task_key": "#{DATABRICKS_ENVIRONMENT_LOWER}#_bronze_receita_federal_task",
@@ -163,12 +163,12 @@
                     }
                 ]
             },
-            "job_cluster_key": "#{DATABRICKS_ENVIRONMENT_LOWER}#_full_receita_federal_cluster"
+            "job_cluster_key": "#{DATABRICKS_ENVIRONMENT_LOWER}#_full_v2_receita_federal_cluster"
         }
     ],
     "job_clusters": [
         {
-            "job_cluster_key": "#{DATABRICKS_ENVIRONMENT_LOWER}#_full_receita_federal_cluster",
+            "job_cluster_key": "#{DATABRICKS_ENVIRONMENT_LOWER}#_full_v2_receita_federal_cluster",
             "new_cluster": {
                 "spark_version": "13.3.x-scala2.12",
                 "azure_attributes": {

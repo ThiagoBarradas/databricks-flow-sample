@@ -6,6 +6,7 @@ print("### Setup Notebook")
 print("")
 dir = os.getenv("DATABRICKS_WORKSPACE_PATH")
 if (dir is None):
+    print("Dir is none... Updating dynamically...")
     dev_prefix = "/Workspace/Repos/development/"
     other_prefix = "/Workspace/"
     dir = os.path.dirname(os.path.realpath('__file__'))
