@@ -123,7 +123,7 @@ do
     changes=$(git diff --no-index $temp_old $temp_new)
 
     # update
-    if [ -z "${VAR}" ]; then
+    if [ -z "${changes}" ]; then
       echo "# Job has no changes! $job_name ($job_id) from $file"
     else
       jq "del(.run_as)" $file > "tmp" && mv "tmp" $file
