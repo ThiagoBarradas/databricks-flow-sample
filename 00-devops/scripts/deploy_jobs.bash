@@ -41,7 +41,7 @@ for line in $(cat remote_jobs_raw.txt)
 do
   job_name=$(echo "$line" | cut -d" " -f2)
   if  [[ $job_name == $job_prefix* ]]; then
-    job_name=$(echo $job_name | sed -e 's/\[.*\]//g')
+    job_name=$(echo $job_name | sed -e 's/\_\[.*\]//g')
     echo "$job_name" >> remote_jobs.txt
   fi
 done
@@ -101,7 +101,7 @@ find "$job_dir" -name "*.job.json" -print0 | while read -d $'\0' file
 do
   job_name=$(jq -r '.name' $file)
   
-  jq ".name |= . + \"_$version\"" $file > "tmp" && mv "tmp" $file 
+  jq ".name |= . + \"_[$version]\"" $file > "tmp" && mv "tmp" $file 
 
   if [[ ${jobs_to_create[@]} =~ $job_name ]]; then
     echo "# Creating $job_name from $file"
