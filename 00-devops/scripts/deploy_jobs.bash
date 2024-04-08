@@ -121,13 +121,13 @@ do
 
     # update
     if [ -z "${VAR}" ]; then
-      echo "# Job has no changes! $job_name ($job_id) from $file
+      echo "# Job has no changes! $job_name ($job_id) from $file"
     else
       jq "del(.run_as)" $file > "tmp" && mv "tmp" $file
       jq '{"new_setting": .}' < $file > "tmp" && mv "tmp" $file
       jq ". += { \"job_id\": $job_id }" $file > "tmp" && mv "tmp" $file
       databricks jobs update --json="@$file" --profile=$profile
-      echo "# Job updated! $job_name ($job_id) from $file
+      echo "# Job updated! $job_name ($job_id) from $file"
     fi
   fi
 done
