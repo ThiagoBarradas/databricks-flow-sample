@@ -131,6 +131,7 @@ do
     else
       echo "Diff:"
       echo "$changes"
+      cat $file
       jq "del(.run_as)" $file > "tmp" && mv "tmp" $file
       jq '{"new_setting": .}' < $file > "tmp" && mv "tmp" $file
       jq ". += { \"job_id\": $job_id }" $file > "tmp" && mv "tmp" $file
