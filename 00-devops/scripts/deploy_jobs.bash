@@ -16,6 +16,7 @@ echo "# Vars"
 echo "job_prefix=$job_prefix"
 echo "job_dir=$job_dir"
 echo "profile=$profile" 
+echo "version=$version" 
 echo ""
 
 # get local jobs
@@ -99,6 +100,8 @@ find "$job_dir" -name "*.job.json" -print0 | while read -d $'\0' file
 do
   job_name=$(jq -r '.name' $file)
   
+  jq ".name |= . + \"_$version\"" $file > "tmp" && mv "tmp" $temp_new 
+
   if [[ ${jobs_to_create[@]} =~ $job_name ]]; then
     echo "# Creating $job_name from $file"
 	  databricks jobs create --json="@$file" --profile=$profile
