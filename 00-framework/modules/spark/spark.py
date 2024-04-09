@@ -5,7 +5,16 @@ class Spark:
         """Constructor Method"""
         self.spark = spark
         self.configuration = configuration
+        self.setup_bigquery()
         spark.catalog.setCurrentCatalog(configuration.catalog)
+
+    def setup_bigquery(self):
+        spark.conf.set("credentials", self.configuration.bigquery_credentials)
+        spark.conf.set("spark.hadoop.google.cloud.auth.service.account.enable", self.configuration.bigquery_enable)
+        spark.conf.set("spark.hadoop.fs.gs.auth.service.account.email", self.configuration.bigquery_email)
+        spark.conf.set("park.hadoop.fs.gs.project.id", self.configuration.bigquery_project_id)
+        spark.conf.set("spark.hadoop.fs.gs.auth.service.account.private.key", self.configuration.bigquery_private_key)
+        spark.conf.set("spark.hadoop.fs.gs.auth.service.account.private.key.id", self.configuration.bigquery_private_key_id)
 
     def read_from_spark_table(self, table):
         """Read a table from databricks spark source"""
