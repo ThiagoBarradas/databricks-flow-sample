@@ -4,6 +4,14 @@
 
 # COMMAND ----------
 
+table = "dataplatform-nonprd.credit_open.webhook_notification_deliveries"
+df = spark.read.format("bigquery").option("parentProject","dataplatform-nonprd").option("table", table).load()
+
+df.show(3)
+
+
+# COMMAND ----------
+
 # DBTITLE 1,Download Files
 # Set Vars
 sftp_path = fw.configuration.get_env_var("DATABRICKS_RAW_RECEITA_FEDERAL_SFTP_DEFAULT_DIRECTORY")

@@ -21,8 +21,8 @@ class Configuration:
         self.bigquery_enable = self.get_env_var("DATABRICKS_BIGQUERY_ENABLE")
         self.bigquery_email = self.get_env_var("DATABRICKS_BIGQUERY_EMAIL")
         self.bigquery_project_id = self.get_env_var("DATABRICKS_BIGQUERY_PROJECT_ID")
-        self.bigquery_private_key = self.get_env_var("DATABRICKS_BIGQUERY_PRIVATE_KEY_ID")
-        self.bigquery_private_key_id = self.get_secret(self.get_env_var("DATABRICKS_BIGQUERY_PRIVATE_KEY_VAULT_KEY"))
+        self.bigquery_private_key = self.get_secret(self.get_env_var("DATABRICKS_BIGQUERY_PRIVATE_KEY_VAULT_KEY"))
+        self.bigquery_private_key_id = self.get_env_var("DATABRICKS_BIGQUERY_PRIVATE_KEY_ID")
 
         print("[environment] \n> " + self.environment)
 
